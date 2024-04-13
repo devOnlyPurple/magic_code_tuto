@@ -1,0 +1,14 @@
+[
+    {
+        "nom": "En Cours",
+        "key": 0
+    },
+    {
+        "nom": "Terminés",
+        "key": 1
+    },
+    {
+        "nom": "Annulés",
+        "key": 5
+    }
+]

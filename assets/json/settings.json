@@ -1,0 +1,37 @@
+[
+    {
+        "iid": 1,
+        "nomsession": "Mon compte",
+        "icon": "assets/icons/0.svg"
+    },
+    {
+        "iid": 2,
+        "nomsession": "Modifier mot de passe",
+        "icon": "assets/icons/1.svg"
+    },
+    {
+        "iid": 3,
+        "nomsession": "Notifications",
+        "icon": "assets/icons/2.svg"
+    },
+    {
+        "iid": 4,
+        "nomsession": "CGU",
+        "icon": "assets/icons/3.svg"
+    },
+    {
+        "iid": 5,
+        "nomsession": "Politique de confidentialité",
+        "icon": "assets/icons/4.svg"
+    },
+    {
+        "iid": 6,
+        "nomsession": "A propos",
+        "icon": "assets/icons/5.svg"
+    },
+    {
+        "iid": 7,
+        "nomsession": "Deconnexion",
+        "icon": "assets/icons/6.svg"
+    }
+]

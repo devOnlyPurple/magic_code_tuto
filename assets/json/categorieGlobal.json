@@ -1,0 +1,139 @@
+[
+    {
+        "iid": 1,
+        "nomCategorie": "Néttoyage",
+        "image": "assets/images/balai.svg",
+        "couleur": "63DC99",
+        "sous_categories": [
+            {
+                "id_sous_categorie": 1,
+                "nom_sous_categorie": "test1",
+                "image": "assets/images/balai.svg",
+                "couleur": "63DC99",
+                "service": [
+                    {
+                        "id_service": 1,
+                        "nom_service": "service1",
+                        "image": "assets/images/balai.svg"
+                    },
+                    {
+                        "id_service": 2,
+                        "nom_service": "service2",
+                        "image": "assets/images/balai.svg"
+                    }
+                ]
+            },
+            {
+                "id_sous_categorie": 1,
+                "nom_sous_categorie": "testX",
+                "image": "assets/images/outils.svg",
+                "couleur": "3DA0EA",
+                "service": [
+                    {
+                        "id_service": 1,
+                        "nom_service": "service1",
+                        "image": "assets/images/balai.svg"
+                    },
+                    {
+                        "id_service": 2,
+                        "nom_service": "service2",
+                        "image": "assets/images/balai.svg"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "iid": 2,
+        "nomCategorie": "Réparation",
+        "image": "assets/images/outils.svg",
+        "couleur": "3DA0EA",
+        "sous_categories": [
+            {
+                "id_sous_categorie": 1,
+                "nom_sous_categorie": "test2",
+                "image": "assets/images/balai.svg",
+                "couleur": "63DC99",
+                "service": [
+                    {
+                        "id_service": 1,
+                        "nom_service": "service1",
+                        "image": "assets/images/balai.svg"
+                    },
+                    {
+                        "id_service": 2,
+                        "nom_service": "service2",
+                        "image": "assets/images/balai.svg"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "iid": 3,
+        "nomCategorie": "Informatique",
+        "image": "assets/images/ordi.svg",
+        "couleur": "FBAB70",
+        "sous_categories": [
+            {
+                "id_sous_categorie": 1,
+                "nom_sous_categorie": "test3",
+                "image": "assets/images/balai.svg",
+                "couleur": "63DC99",
+                "service": [
+                    {
+                        "id_service": 1,
+                        "nom_service": "service1",
+                        "image": "assets/images/balai.svg"
+                    },
+                    {
+                        "id_service": 2,
+                        "nom_service": "service2",
+                        "image": "assets/images/balai.svg"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "iid": 4,
+        "nomCategorie": "Construction",
+        "image": "assets/images/constructeur.svg",
+        "couleur": "887FFE",
+        "sous_categories": [
+            {
+                "id_sous_categorie": 1,
+                "nom_sous_categorie": "test4",
+                "image": "assets/images/balai.svg",
+                "couleur": "63DC99",
+                "service": [
+                    {
+                        "id_service": 1,
+                        "nom_service": "service1",
+                        "image": "assets/images/balai.svg"
+                    },
+                    {
+                        "id_service": 2,
+                        "nom_service": "service2",
+                        "image": "assets/images/balai.svg"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "iid": 5,
+        "nomCategorie": "Conduite",
+        "image": "assets/images/caravane.svg",
+        "couleur": "F88986",
+        "sous_categories": [
+            {
+                "id_sous_categorie": 1,
+                "nom_sous_categorie": "test5",
+                "image": "assets/images/balai.svg",
+                "couleur": "63DC99",
+                "service": []
+            }
+        ]
+    }
+]

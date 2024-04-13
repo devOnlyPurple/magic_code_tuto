@@ -1,0 +1,32 @@
+[
+    {
+        "iid": 1,
+        "nomCategorie": "Néttoyage",
+        "image": "assets/images/balai.svg",
+        "couleur": "63DC99"
+    },
+    {
+        "iid": 2,
+        "nomCategorie": "Réparation",
+        "image": "assets/images/outils.svg",
+        "couleur": "3DA0EA"
+    },
+    {
+        "iid": 3,
+        "nomCategorie": "Informatique",
+        "image": "assets/images/ordi.svg",
+        "couleur": "FBAB70"
+    },
+    {
+        "iid": 4,
+        "nomCategorie": "Construction",
+        "image": "assets/images/constructeur.svg",
+        "couleur": "887FFE"
+    },
+    {
+        "iid": 5,
+        "nomCategorie": "Conduite",
+        "image": "assets/images/caravane.svg",
+        "couleur": "F88986"
+    }
+]

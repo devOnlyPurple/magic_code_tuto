@@ -1,0 +1,42 @@
+[
+    {
+        "id": 1,
+        "nom": "Yvon koudam",
+        "image": "assets/images/workers3.svg",
+        "note": 4.1,
+        "offer": 16.0,
+        "honoraire": "15.000",
+        "title": "Développeur",
+        "localite": "Lomé"
+    },
+    {
+        "id": 2,
+        "nom": "Olalekou json",
+        "image": "assets/images/workers3.svg",
+        "note": 4.3,
+        "offer": 16.0,
+        "honoraire": "11.000",
+        "title": "Plombier",
+        "localite": "Lomé"
+    },
+    {
+        "id": 3,
+        "nom": "john doe",
+        "image": "assets/images/workers3.svg",
+        "note": 3.1,
+        "offer": 16.0,
+        "honoraire": "12.000",
+        "title": "Electricien",
+        "localite": "Aneho"
+    },
+    {
+        "id": 4,
+        "nom": "purple j",
+        "image": "assets/images/workers3.svg",
+        "note": 4.2,
+        "offer": 15.0,
+        "honoraire": "10.000",
+        "title": "Cleaner",
+        "localite": "Aneho"
+    }
+]
