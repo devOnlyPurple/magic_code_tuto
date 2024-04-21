@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:kondjigbale/classe/connect/connect_check.dart';
@@ -8,6 +10,7 @@ import 'package:kondjigbale/helpers/constants/constant.dart';
 import 'package:kondjigbale/helpers/constants/widget_constants.dart';
 import 'package:kondjigbale/helpers/manager/api_repository.dart';
 import 'package:kondjigbale/helpers/utils/sizeconfig.dart';
+import 'package:kondjigbale/models/adresseData/adresse_data.dart';
 import 'package:kondjigbale/models/uneAdresse_response.dart';
 import 'package:kondjigbale/widget/uiSnackbar.dart';
 import 'package:kondjigbale/widget/widget_helpers.dart';
@@ -260,7 +263,9 @@ class _AdresseNewPageState extends State<AdresseNewPage> {
       Navigator.pop(context);
 
       if (responseAdresse.status == API_SUCCES_STATUS) {
-        Navigator.pop(context, 1);
+        adresseData data =
+            adresseData(_name.value.text, lat.toString(), long.toString());
+        Navigator.pop(context, data);
       } else {
         var message = responseAdresse.message.toString();
         UiSnackbar.showSnackbar(context, message, false);

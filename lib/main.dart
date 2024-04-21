@@ -6,10 +6,12 @@ import 'package:flutter_localization/flutter_localization.dart';
 import 'package:intl_phone_field/countries.dart';
 import 'package:kondjigbale/classe/localization/locales.dart';
 import 'package:kondjigbale/helpers/constants/constant.dart';
+import 'package:kondjigbale/models/confirm.dart';
 import 'package:kondjigbale/models/sexe.dart';
 import 'package:kondjigbale/providers/listes_provider.dart';
 import 'package:kondjigbale/providers/user_provider.dart';
 import 'package:kondjigbale/testparams.dart';
+import 'package:kondjigbale/views/agenda/payPage.dart';
 import 'package:kondjigbale/views/auth/login_page.dart';
 
 import 'package:go_router/go_router.dart';
@@ -114,6 +116,15 @@ final goRouter = GoRouter(
         final List<Country>? apiPays = extraData['apiPays'];
         final List<Sexe>? listSexe = extraData['listSexe'];
         return LoginPage(apiPays: apiPays ?? [], listSexe: listSexe ?? []);
+      },
+    ),
+    GoRoute(
+      path: '/payPage',
+      builder: (context, state) {
+        final Map<String, dynamic> extraData =
+            state.extra as Map<String, dynamic>;
+        final Confirm? payResponse = extraData['payResponse'];
+        return PayPage(payResponse: payResponse!);
       },
     ),
   ],

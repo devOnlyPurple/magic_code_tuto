@@ -27,6 +27,7 @@ class _AdresseHomeState extends State<AdresseHome> {
   final ConnectivityChecker _connectivity = ConnectivityChecker();
   int loadingStatus = 0;
   List<Adresse> lesAdresses = [];
+  String aresseSelect = 'Adresse';
   Future<void> getAdresse() async {
     final Map<String, String> dataAdresse = {
       'u_identifiant': widget.userResponse.token!,

@@ -54,8 +54,9 @@ class _PharmaPageState extends State<PharmaPage> {
       if (mounted) {
         setState(() {
           listePharma = listeMenu.information!.pharmas!;
-          listprochePharma = List.from(listePharma);
           loadingStatus = 1;
+          listprochePharma = List.from(listePharma);
+
           pharmaGARDE = listeMenu.information!.garde!;
           jsonString = pharmaGARDE.pharmacieIds!;
           pharmacyIds = jsonDecode(jsonString)

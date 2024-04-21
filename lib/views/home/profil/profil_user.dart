@@ -72,6 +72,7 @@ class _ProfilPageState extends State<ProfilPage> {
   String paysPrefix = "";
   late String _currentLocale;
   String? locale;
+
   @override
   void initState() {
     // TODO: implement initState

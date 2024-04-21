@@ -225,93 +225,98 @@ class _AgendaPageState extends State<AgendaPage>
                       }
                     });
                   },
-                  child: Container(
-                    height: 90,
-                    width: size.width,
-                    decoration: BoxDecoration(
-                        color: Colors.grey.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Center(
-                      child: Row(
-                        children: [
-                          SizedBox(
-                            width: 10,
-                          ),
-                          CircleAvatar(
-                            radius: 25,
-                            backgroundImage:
-                                NetworkImage(unRendevous.prestataire!.photo!),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Expanded(
-                              child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Br15(),
-                              Text(
-                                '${unRendevous.prestataire!.prenoms!} ${unRendevous.prestataire!.nom!}',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
-                              ),
-                              Br3(),
-                              Text(unRendevous.prestataire!.expertises!),
-                              Br3(),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.calendar_today_sharp,
-                                    size: 11,
-                                  ),
-                                  SizedBox(
-                                    width: 4,
-                                  ),
-                                  Column(
-                                    children: [
-                                      Br3(),
-                                      Text(
-                                        unRendevous.dateRdv!
-                                            .replaceAll('-', '/'),
-                                        style: TextStyle(
-                                            color: kBlack, fontSize: 11),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Icon(
-                                    Icons.timer_outlined,
-                                    size: 11,
-                                  ),
-                                  SizedBox(
-                                    width: 4,
-                                  ),
-                                  Column(
-                                    children: [
-                                      Br3(),
-                                      Text(
-                                        unRendevous.heureDebut!.substring(
-                                                0,
-                                                unRendevous.heureDebut!.length -
-                                                    2) +
-                                            ' - ' +
-                                            unRendevous.heureFin!.substring(
-                                                0,
-                                                unRendevous.heureFin!.length -
-                                                    3),
-                                        style: TextStyle(
-                                            color: kBlack, fontSize: 11),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              )
-                            ],
-                          ))
-                        ],
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Container(
+                      height: 90,
+                      width: size.width,
+                      decoration: BoxDecoration(
+                          color: Colors.grey.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Center(
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 10,
+                            ),
+                            CircleAvatar(
+                              radius: 25,
+                              backgroundImage:
+                                  NetworkImage(unRendevous.prestataire!.photo!),
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Expanded(
+                                child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Br15(),
+                                Text(
+                                  '${unRendevous.prestataire!.prenoms!} ${unRendevous.prestataire!.nom!}',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                                Br3(),
+                                Text(unRendevous.prestataire!.expertises!),
+                                Br3(),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today_sharp,
+                                      size: 11,
+                                    ),
+                                    SizedBox(
+                                      width: 4,
+                                    ),
+                                    Column(
+                                      children: [
+                                        Br3(),
+                                        Text(
+                                          unRendevous.dateRdv!
+                                              .replaceAll('-', '/'),
+                                          style: TextStyle(
+                                              color: kBlack, fontSize: 11),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Icon(
+                                      Icons.timer_outlined,
+                                      size: 11,
+                                    ),
+                                    SizedBox(
+                                      width: 4,
+                                    ),
+                                    Column(
+                                      children: [
+                                        Br3(),
+                                        Text(
+                                          unRendevous.heureDebut!.substring(
+                                                  0,
+                                                  unRendevous
+                                                          .heureDebut!.length -
+                                                      2) +
+                                              ' - ' +
+                                              unRendevous.heureFin!.substring(
+                                                  0,
+                                                  unRendevous.heureFin!.length -
+                                                      3),
+                                          style: TextStyle(
+                                              color: kBlack, fontSize: 11),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ))
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -329,7 +334,7 @@ class _AgendaPageState extends State<AgendaPage>
           children: [
             Br20(),
             Container(
-                padding: EdgeInsets.all(15.0),
+                // padding: EdgeInsets.all(15.0),
                 child: loadingStatus == 0
                     ? Center(
                         // Affichez un indicateur de chargement tant que loadingStatus est égal à 0

@@ -336,8 +336,7 @@ class _ProfilMainState extends State<ProfilMain> {
                 Navigator.of(context).pop();
               }, acceptPress: () {
                 Navigator.of(context).pop();
-                CustomLoading(context,
-                    status: "suppresion de l'adresse en cours...");
+                CustomLoading(context, status: "Déconnexion en cours...");
                 _disconnect(apiPays, listSexe);
               });
             }

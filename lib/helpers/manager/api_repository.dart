@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:kondjigbale/models/actu_response.dart';
+import 'package:kondjigbale/models/add_rdv_response.dart';
 import 'package:kondjigbale/models/adresse_response.dart';
 import 'package:kondjigbale/models/conseil_response.dart';
 import 'package:kondjigbale/models/crenau_doc_response.dart';
@@ -10,6 +11,7 @@ import 'package:kondjigbale/models/doctor_response.dart';
 import 'package:kondjigbale/models/menu_response.dart';
 import 'package:kondjigbale/models/menu_special_content.dart';
 import 'package:kondjigbale/models/pharmacie_response.dart';
+import 'package:kondjigbale/models/rdv_confirm_response.dart';
 import 'package:kondjigbale/models/rdv_response.dart';
 import 'package:kondjigbale/models/register_response.dart';
 import 'package:kondjigbale/helpers/constants/api_constant.dart';
@@ -856,5 +858,64 @@ class ApiRepository {
       }
     } catch (e) {}
     return responseDoctor;
+  }
+
+  // add rdv
+
+  static Future<Add_rdv> addRdv(Map<String, String> datas) async {
+    Dio dio = await getDio();
+    Add_rdv responseRdv = Add_rdv();
+    try {
+      // Attendre que la future soit résolue
+      datas = await Api.get_default_datas(datas);
+      print(datas);
+      FormData formData = FormData.fromMap(datas);
+
+      Response response = await dio.post(ADD_RDV_SERVER_URL, data: formData);
+
+      print(response.data);
+
+      if (response.statusCode == 200) {
+        // Analyser la réponse JSON et créer un objet LoginResponse
+        var data = jsonDecode(response.data);
+        responseRdv = Add_rdv.fromJson(data);
+      } else {
+        responseRdv = Add_rdv(
+          status: response.statusCode.toString(),
+          message: 'Erreur de serveur: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      debugPrint("erreu de rdv liste =>$e");
+    }
+    return responseRdv;
+  }
+
+  // confirm
+  static Future<Confirm_rdv> confirmRdv(Map<String, String> datas) async {
+    Dio dio = await getDio();
+    Confirm_rdv responseRdv = Confirm_rdv();
+
+    // Attendre que la future soit résolue
+    datas = await Api.get_default_datas(datas);
+    print(datas);
+    FormData formData = FormData.fromMap(datas);
+
+    Response response = await dio.post(CONFIRM_RDV_SERVER_URL, data: formData);
+
+    print(response.data);
+
+    if (response.statusCode == 200) {
+      // Analyser la réponse JSON et créer un objet LoginResponse
+      var data = jsonDecode(response.data);
+      responseRdv = Confirm_rdv.fromJson(data);
+    } else {
+      responseRdv = Confirm_rdv(
+        status: response.statusCode.toString(),
+        message: 'Erreur de serveur: ${response.statusCode}',
+      );
+    }
+
+    return responseRdv;
   }
 }

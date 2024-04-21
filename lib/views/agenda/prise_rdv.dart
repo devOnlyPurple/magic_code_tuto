@@ -4,17 +4,28 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_localization/flutter_localization.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kondjigbale/classe/connect/connect_check.dart';
 import 'package:kondjigbale/classe/localization/locales.dart';
 import 'package:kondjigbale/helpers/constants/api_constant.dart';
 import 'package:kondjigbale/helpers/constants/constant.dart';
 import 'package:kondjigbale/helpers/constants/widget_constants.dart';
 import 'package:kondjigbale/helpers/manager/api_repository.dart';
+import 'package:kondjigbale/models/add_rdv_response.dart';
+import 'package:kondjigbale/models/adresseData/adresse_data.dart';
+import 'package:kondjigbale/models/adresse_response.dart';
 import 'package:kondjigbale/models/crenau_doc_response.dart';
 import 'package:kondjigbale/models/creneau.dart';
 import 'package:kondjigbale/models/prestataire.dart';
+import 'package:kondjigbale/models/rdv.dart';
+import 'package:kondjigbale/models/rdv_confirm_response.dart';
+import 'package:kondjigbale/models/rdv_response.dart';
 import 'package:kondjigbale/models/rdv_typeConsulting.dart';
+import 'package:kondjigbale/models/rendevous.dart';
+import 'package:kondjigbale/models/une_adresse.dart';
 import 'package:kondjigbale/models/user.dart';
+import 'package:kondjigbale/views/adresse/new_adresse.dart';
+import 'package:kondjigbale/widget/uiSnackbar.dart';
 import 'package:kondjigbale/widget/widget_helpers.dart';
 import 'package:validatorless/validatorless.dart';
 import 'package:intl/intl.dart';
@@ -31,38 +42,30 @@ class AppointmentPage extends StatefulWidget {
 class _AppointmentPageState extends State<AppointmentPage>
     with TickerProviderStateMixin {
   int activeStep = 0;
-  int selectedIndex = 0;
+  int selectedIndex = -1;
   int selectedHours = -1;
   final TextEditingController _motifRdv = TextEditingController();
+  final FocusNode _motfiNode = FocusNode();
   final _formKey = GlobalKey<FormState>();
   String tc_identifiant = '';
+  int dureConsultation = 0;
   int loadingStatus = 0;
   List<Creneau> listCreneau = [];
   late TabController? controller;
   late PageController _pageController;
+  List<int> pageAndSelctedIndex = [0, -1];
+  bool isDomicileSelect = false;
+  String adresseSelect = 'Adresse';
+  String adresseKey = '';
+  String latitude = '';
+  String longitude = '';
+  int PageIndex = 0;
+  TypeConsultations consult = TypeConsultations();
   //  creneau Doctor
-
-  // function to split
-  List<String> transformTimeRangeToList(String timeRange) {
-    List<String> parts = timeRange.split(" - ");
-    if (parts.length != 2) {
-      throw ArgumentError("La chaîne doit être au format 'hh:mm - hh:mm'");
-    }
-
-    String startTime = parts[0];
-    String endTime = parts[1];
-
-    int startHour = int.parse(startTime.split(":")[0]);
-    int endHour = int.parse(endTime.split(":")[0]);
-
-    List<String> resultList = [];
-    for (int hour = startHour; hour <= endHour; hour++) {
-      resultList.add('$hour:00');
-    }
-
-    return resultList;
-  }
-
+  String heureRdv = '';
+  String nameTypeConsult = '';
+  String dateSelect = "";
+  String dateSelectNoFormat = "";
   //end
   final ConnectivityChecker _connectivity = ConnectivityChecker();
   Future<void> get_doctor_creneau(String tcIdentifiant) async {
@@ -81,9 +84,8 @@ class _AppointmentPageState extends State<AppointmentPage>
             listCreneau = creneau.information!.creneau!;
             controller = TabController(length: listCreneau.length, vsync: this);
             loadingStatus = 1;
-
-            List<String> result = transformTimeRangeToList(
-                listCreneau[0].horaire!); // cette liste pour chaque pagevieuw
+            dureConsultation = creneau.information!.dureeConsultation!;
+            // cette liste pour chaque pagevieuw
             _pageController = PageController(initialPage: 0);
             controller!.addListener(() {
               _pageController.animateToPage(
@@ -92,10 +94,12 @@ class _AppointmentPageState extends State<AppointmentPage>
                 curve: Curves.ease,
               );
             });
-            print('=====');
-            print(result);
-            print('=====');
+            dateSelect = formatDateStringyear(
+              listCreneau[0].date!,
+            );
+            dateSelectNoFormat = listCreneau[0].date!;
           });
+          print(dateSelectNoFormat);
         }
       } else {
         if (this.mounted) {
@@ -121,24 +125,78 @@ class _AppointmentPageState extends State<AppointmentPage>
   }
 
 // Output: [11, 12, 13, 14, 15, 16, 17, 18]
+  List<String> genererHeures(String plageHoraire, int dureeEnMinutes) {
+    List<String> heuresObtenues = [];
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    tc_identifiant =
-        widget.unPrestataire!.typeConsultations![0].keyTypeConsultation!;
-    controller = TabController(length: 0, vsync: this);
-    _pageController = PageController(initialPage: 0);
-    print(tc_identifiant);
-    get_doctor_creneau(tc_identifiant);
+    // Divise la plage horaire en heures de début et de fin
+    List<String> heures = plageHoraire.split(' - ');
+
+    if (heures.length == 2) {
+      DateTime debut = DateFormat('HH:mm').parse(heures[0]);
+      DateTime fin = DateFormat('HH:mm').parse(heures[1]);
+
+      while (debut.isBefore(fin)) {
+        heuresObtenues.add(DateFormat('HH:mm').format(debut));
+        debut = debut.add(Duration(minutes: dureeEnMinutes));
+      }
+      heuresObtenues.add(DateFormat('HH:mm').format(fin));
+    } else {
+      throw Exception("Format de plage horaire invalide.");
+    }
+
+    return heuresObtenues;
   }
 
   @override
   void dispose() {
     controller?.dispose(); // Assurez-vous de disposer du TabController
-    _pageController.dispose(); // Assurez-vous de disposer du TabController
+    _pageController.dispose();
+    _motfiNode.dispose(); // Assurez-vous de disposer du TabController
     super.dispose();
+  }
+
+  List<Adresse> lesAdresses = [];
+  Future<void> getAdresse() async {
+    bool isConnect = await _connectivity.checkInternetConnectivity();
+
+    if (isConnect) {
+      final Map<String, String> dataAdresse = {
+        'u_identifiant': widget.userResponse!.token!,
+      };
+      AdresseResponse listeAdresse =
+          await ApiRepository.listAdresse(dataAdresse);
+      if (listeAdresse.status == API_SUCCES_STATUS) {
+        if (mounted) {
+          setState(() {
+            lesAdresses = listeAdresse.information!;
+          });
+        }
+      } else {
+        print(
+          listeAdresse.message,
+        );
+      }
+    } else {
+      CustomErrorDialog(
+        context,
+        content: "Vérifiez votre connexion internet",
+        buttonText: "Réessayez",
+        onPressed: () {
+          getAdresse();
+          Navigator.of(context).pop();
+        },
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    controller = TabController(length: 0, vsync: this);
+    _pageController = PageController(initialPage: 0);
+    getAdresse();
   }
 
   @override
@@ -207,6 +265,7 @@ class _AppointmentPageState extends State<AppointmentPage>
             if (activeStep == 0) buildFirstStep(unDoc.typeConsultations!, size),
             if (activeStep == 1)
               buildSecondStep(unDoc.typeConsultations!, size),
+            if (activeStep == 2) buildThirdStep(size),
           ],
         ),
       ),
@@ -226,6 +285,7 @@ class _AppointmentPageState extends State<AppointmentPage>
                     setState(() {
                       activeStep--;
                     });
+                    print(activeStep);
                   }
                 },
                 child: Container(
@@ -246,7 +306,13 @@ class _AppointmentPageState extends State<AppointmentPage>
               Spacer(),
               InkWell(
                 onTap: () {
-                  _VerifyStepNext();
+                  if (activeStep < 2) {
+                    _VerifyStepNext();
+                  } else {
+                    CustomLoading(context,
+                        status: "Ajout de rendez-vous en cours...");
+                    _addRdv();
+                  }
                 },
                 child: Container(
                   height: 45,
@@ -255,7 +321,9 @@ class _AppointmentPageState extends State<AppointmentPage>
                       color: Kprimary, borderRadius: BorderRadius.circular(15)),
                   child: Center(
                       child: Text(
-                    LocaleData.onboardbtn2.getString(context),
+                    activeStep < 2
+                        ? LocaleData.onboardbtn2.getString(context)
+                        : 'Soumettre',
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: kWhite,
@@ -283,11 +351,18 @@ class _AppointmentPageState extends State<AppointmentPage>
             return InkWell(
               onTap: () {
                 setState(() {
+                  loadingStatus = 0;
+                  consult = uneConsultation;
                   selectedIndex = index;
                   tc_identifiant = uneConsultation.keyTypeConsultation!;
+
+                  if (consult.keyTypeConsultation == CONSEIL_KEY) {
+                    isDomicileSelect = true;
+                  } else {
+                    isDomicileSelect = false;
+                    _motfiNode.requestFocus();
+                  }
                 });
-                get_doctor_creneau(tc_identifiant);
-                print(tc_identifiant);
               },
               child: Container(
                 height: 130,
@@ -328,6 +403,7 @@ class _AppointmentPageState extends State<AppointmentPage>
   Widget motifFielMethod() {
     return SizedBox(
       child: TextFormField(
+          focusNode: _motfiNode,
           keyboardType: TextInputType.multiline,
           minLines: 5,
           maxLines: 10,
@@ -375,7 +451,7 @@ class _AppointmentPageState extends State<AppointmentPage>
         Br20(),
         listtypeConsult(typeConsultations, size),
         Br20(),
-        FormMethod()
+        FormMethod(size)
       ],
     );
   }
@@ -396,48 +472,141 @@ class _AppointmentPageState extends State<AppointmentPage>
         Br10(),
         TabDate(),
         Br10(),
-        Container(
-            height: MediaQuery.of(context).size.height * 0.6,
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (index) {
-                controller!.animateTo(index);
-                controller!.animateTo(
-                  index,
-                  duration: Duration(milliseconds: 300),
-                  curve: Curves.ease,
-                );
-              },
-              children: listCreneau
-                  .where((creneau) => creneau.horaire != null)
-                  .map((creneau) {
-                List<String> result =
-                    transformTimeRangeToList(creneau.horaire!);
-                return hourCard(result);
-              }).toList(),
-            ))
+        if (loadingStatus == 0)
+          Center(
+            // Affichez un indicateur de chargement tant que loadingStatus est égal à 0
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                SizedBox(height: 50),
+                CircularProgressIndicator(
+                  backgroundColor: Kprimary,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                ),
+                SizedBox(height: 10),
+                Text("Chargement des créneaux du docteur  en cours"),
+              ],
+            ),
+          )
+        else
+          Container(
+              height: MediaQuery.of(context).size.height * 1,
+              child: PageView(
+                controller: _pageController,
+                onPageChanged: (index) {
+                  setState(() {
+                    dateSelect = formatDateStringyear(
+                      listCreneau[index].date!,
+                    );
+                    dateSelectNoFormat = listCreneau[index].date!;
+                    PageIndex = index;
+                    if (pageAndSelctedIndex[0] == index) {
+                      selectedHours = pageAndSelctedIndex[1];
+                    } else {
+                      selectedHours = -1;
+                    }
+                  });
+                  print(dateSelectNoFormat);
+                  controller!.animateTo(index);
+                  controller!.animateTo(
+                    index,
+                    duration: Duration(milliseconds: 300),
+                    curve: Curves.ease,
+                  );
+                },
+                children: listCreneau
+                    .where((creneau) => creneau.horaire != null)
+                    .map((creneau) {
+                  List<String> result =
+                      genererHeures(creneau.horaire!, dureConsultation);
+                  return hourCard(result);
+                }).toList(),
+              ))
       ],
     );
   }
 
   _VerifyStepNext() {
+    print(activeStep);
     if (activeStep == 0) {
-      if (_formKey.currentState!.validate()) {
+      if (selectedIndex == -1) {
+        UiSnackbar.showSnackbar(
+            context, "Veuillez sélectionnez un type de consultation. ", false);
+      } else if (_formKey.currentState!.validate()) {
+        setState(() {
+          activeStep = 1;
+        });
+        get_doctor_creneau(tc_identifiant);
+      }
+    } else if (activeStep == 1) {
+      if (selectedHours != -1) {
         setState(() {
           activeStep++;
         });
       }
     }
-    if (activeStep == 1) {
-      print(1);
-    }
   }
 
-  Form FormMethod() {
+  // Form FormMethod() {
+  //   return Form(
+  //     key: _formKey,
+  //     child: motifFielMethod(),
+  //   );
+  // }
+  Form FormMethod(Size size) {
     return Form(
-      key: _formKey,
-      child: motifFielMethod(),
-    );
+        key: _formKey,
+        child: Column(
+          children: [
+            if (isDomicileSelect == true)
+              Column(children: [
+                adresseList(),
+                Br10(),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: InkWell(
+                    onTap: () async {
+                      final responseAdresse = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => AdresseNewPage(
+                                    uIdentifiant: widget.userResponse!.token!,
+                                  )));
+                      setState(() {
+                        if (responseAdresse != 0) {
+                          adresseData adresse = responseAdresse as adresseData;
+                          getAdresse();
+                          latitude = adresse.lat;
+                          longitude = adresse.long;
+                          adresseSelect = adresse.adresseName;
+                          _motfiNode.requestFocus();
+
+                          // print(latitude);
+                        }
+                      });
+                    },
+                    child: Container(
+                      height: 45,
+                      width: size.width / 3,
+                      decoration: BoxDecoration(
+                          color: Kprimary,
+                          borderRadius: BorderRadius.circular(15)),
+                      child: Center(
+                          child: Text(
+                        LocaleData.newAdress.getString(context),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: kWhite,
+                            fontSize: 15),
+                      )),
+                    ),
+                  ),
+                ),
+                Br10(),
+              ]),
+            motifFielMethod(),
+          ],
+        ));
   }
 
   Widget TabDate() {
@@ -446,8 +615,6 @@ class _AppointmentPageState extends State<AppointmentPage>
         child: TabBar(
           tabAlignment: TabAlignment.start,
           unselectedLabelColor: Colors.grey,
-          // labelStyle:
-          //     TextStyle(color: Kprimary, fontSize: 15, fontFamily: 'Axiformat'),
           indicatorSize: TabBarIndicatorSize.tab,
           indicatorColor: Kprimary,
           isScrollable: true,
@@ -480,6 +647,12 @@ class _AppointmentPageState extends State<AppointmentPage>
     return formattedDate;
   }
 
+  String formatDateStringyear(String dateString) {
+    DateTime date = DateTime.parse(dateString);
+    String formattedDate = DateFormat('dd MMM yyyy', 'fr_FR').format(date);
+    return formattedDate;
+  }
+
   Widget hourCard(List<String> hours) {
     return GridView.builder(
       shrinkWrap: true,
@@ -498,13 +671,16 @@ class _AppointmentPageState extends State<AppointmentPage>
           onTap: () {
             setState(() {
               selectedHours = index;
+              heureRdv = hours[index];
+              pageAndSelctedIndex = [PageIndex, selectedHours];
             });
+            // print(heureRdv);
           },
           child: Container(
             margin: EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: isSelected
-                  ? Ksecondary.withOpacity(0.5)
+                  ? Ksecondary.withOpacity(0.7)
                   : Kprimary.withOpacity(0.2),
               border: Border.all(color: Colors.grey.shade200), // Bordure grise
               borderRadius: BorderRadius.circular(8), // Bordure arrondie
@@ -513,15 +689,201 @@ class _AppointmentPageState extends State<AppointmentPage>
               child: Text(
                 hours[index],
                 style: TextStyle(
-                    fontSize: 14,
-                    color: isSelected
-                        ? Ksecondary.withOpacity(0.5)
-                        : Colors.black),
+                    fontSize: 14, color: isSelected ? kWhite : Colors.black),
               ),
             ),
           ),
         ));
       },
     );
+  }
+
+  Widget buildThirdStep(Size size) {
+    return Column(children: [
+      Center(
+        child: Text(
+          // ignore: prefer_interpolation_to_compose_strings
+          "Récapitulatif",
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 30),
+        ),
+      ),
+      Br10(),
+      Container(
+        height: 250,
+        width: size.width,
+        decoration: BoxDecoration(
+            color: Colors.grey.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(15)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Br20(),
+            Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                ),
+                Center(
+                  child: Uri.parse(widget.unPrestataire!.photo!).isAbsolute
+                      ? CircleAvatar(
+                          radius: 35,
+                          backgroundImage:
+                              NetworkImage(widget.unPrestataire!.photo!),
+                        )
+                      : CircleAvatar(
+                          radius: 35,
+                          backgroundImage:
+                              AssetImage('assets/images/doctor.png'),
+                        ),
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+              ],
+            ),
+            Br15(),
+            recapListMethod(
+                title: "Type de consultation:",
+                value: consult.denominationTypeConsultation),
+            recapListMethod(
+                title: "Prix de consultation:", value: consult.tarif),
+            recapListMethod(title: "Motif:", value: _motifRdv.text),
+            recapListMethod(title: "Date:", value: dateSelect),
+            recapListMethod(title: "Heure de début:", value: heureRdv),
+          ],
+        ),
+      )
+    ]);
+  }
+
+  SizedBox adresseList() {
+    return SizedBox(
+      child: DropdownButtonFormField<String>(
+          // Valeur sélectionnée
+          validator: (value) {
+            // Condition pour appliquer la validation requise uniquement si adresseSelect est égal à 'Adresse'
+            if (adresseSelect == 'Adresse' && value == null) {
+              return VALIDATOR_REQUIRED; // Message d'erreur si la valeur est requise
+            }
+            return null; // Retourne null pour indiquer que la validation a réussi
+          },
+          items: lesAdresses.map((Adresse value) {
+            return DropdownMenuItem<String>(
+              value: value.keyAdresse,
+              child: Text(value.nomAdresse!),
+            );
+          }).toList(),
+          onChanged: (String? newValue) {
+            print(adresseSelect);
+            Adresse selectedAdresse = lesAdresses
+                .firstWhere((adresse) => adresse.keyAdresse == newValue);
+
+            _motfiNode.requestFocus();
+            setState(() {
+              adresseSelect = selectedAdresse.nomAdresse!;
+              adresseKey = newValue!;
+              latitude = selectedAdresse.latitude!;
+              longitude = selectedAdresse.longitude!;
+            });
+          },
+          decoration: InputDecoration(
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(color: kformFieldBackgroundColor),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10.0),
+              borderSide: BorderSide(
+                color: kformFieldBackgroundColor,
+              ),
+            ),
+            fillColor: kformFieldBackgroundColor,
+            filled: true,
+            border: OutlineInputBorder(
+                // borderSide: new BorderSide(color:Colors.green)
+                ),
+            hintText: adresseSelect,
+            hintStyle: TextStyle(fontSize: 14.0, color: Colors.black45),
+          )),
+    );
+  }
+
+  Widget recapListMethod({String? title, String? value}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 5, left: 8),
+      child: Row(
+        children: [
+          Text(
+            title!,
+            style: const TextStyle(
+                fontWeight: FontWeight.w700, fontSize: 16, color: Kprimary),
+          ),
+          const SizedBox(
+            width: 5,
+          ),
+          Text(
+            value!,
+            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // add rdv
+  _addRdv() async {
+    bool isConnect = await _connectivity.checkInternetConnectivity();
+    if (isConnect) {
+      var adressLatLoong = '$latitude,$longitude';
+      final Map<String, String> dataRdv = {
+        'u_identifiant': widget.userResponse!.token!,
+        'd_identifiant': widget.unPrestataire!.token!,
+        'tc_identifiant': consult.keyTypeConsultation!,
+        'motif': _motifRdv.value.text,
+        'adresse': adressLatLoong,
+        'date': dateSelectNoFormat,
+        'time': heureRdv,
+      };
+
+      Add_rdv responseRdv = await ApiRepository.addRdv(dataRdv);
+      Navigator.pop(context);
+      if (responseRdv.status == API_SUCCES_STATUS) {
+        Rdv rendevous = responseRdv.rendezVous!;
+        String rendevousKey = rendevous.keyRendezVous!;
+        _confirmRdv(rendevousKey);
+      } else {
+        UiSnackbar.showSnackbar(context, responseRdv.message!, false);
+      }
+    } else {
+      print("no connexion");
+      CustomErrorDialog(
+        context,
+        content: "Vérifiez votre connexion internet",
+        buttonText: "Réessayez",
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      );
+    }
+  }
+
+  // confirmRdv
+
+  _confirmRdv(String keyRendevous) async {
+    final Map<String, String> dataRdv = {
+      'u_identifiant': widget.userResponse!.token!,
+      'r_identifiant': keyRendevous,
+    };
+
+    Confirm_rdv responseConfrimrdv = await ApiRepository.confirmRdv(dataRdv);
+    Navigator.pop(context);
+    if (responseConfrimrdv.status == API_SUCCES_STATUS) {
+      GoRouter.of(context).go('/payPage', extra: <String, dynamic>{
+        'payResponse': responseConfrimrdv.information,
+      });
+    } else {
+      UiSnackbar.showSnackbar(context, responseConfrimrdv.message!, false);
+    }
   }
 }

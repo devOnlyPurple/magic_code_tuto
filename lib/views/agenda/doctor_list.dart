@@ -267,49 +267,49 @@ class _DoctorListPageState extends State<DoctorListPage> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-          color: kWhite,
-          elevation: 0,
-          surfaceTintColor: kWhite,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Spacer(),
-              InkWell(
-                onTap: () {
-                  setState(() {
-                    if (doctorChoix == null) {
-                      ischoiceDoctor = 1;
-                    } else {
-                      ischoiceDoctor = 0;
+      // bottomNavigationBar: BottomAppBar(
+      //     color: kWhite,
+      //     elevation: 0,
+      //     surfaceTintColor: kWhite,
+      //     child: Row(
+      //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //       crossAxisAlignment: CrossAxisAlignment.end,
+      //       children: [
+      //         Spacer(),
+      //         InkWell(
+      //           onTap: () {
+      //             setState(() {
+      //               if (doctorChoix == null) {
+      //                 ischoiceDoctor = 1;
+      //               } else {
+      //                 ischoiceDoctor = 0;
 
-                      ClassUtils.navigateTo(
-                          context,
-                          AppointmentPage(
-                            unPrestataire: doctorChoix,
-                            userResponse: widget.userResponse,
-                          ));
-                    }
-                  });
-                },
-                child: Container(
-                  height: 45,
-                  width: size.width / 4,
-                  decoration: BoxDecoration(
-                      color: Kprimary, borderRadius: BorderRadius.circular(15)),
-                  child: Center(
-                      child: Text(
-                    LocaleData.onboardbtn2.getString(context),
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: kWhite,
-                        fontSize: 15),
-                  )),
-                ),
-              ),
-            ],
-          )),
+      //                 ClassUtils.navigateTo(
+      //                     context,
+      //                     AppointmentPage(
+      //                       unPrestataire: doctorChoix,
+      //                       userResponse: widget.userResponse,
+      //                     ));
+      //               }
+      //             });
+      //           },
+      //           child: Container(
+      //             height: 45,
+      //             width: size.width / 4,
+      //             decoration: BoxDecoration(
+      //                 color: Kprimary, borderRadius: BorderRadius.circular(15)),
+      //             child: Center(
+      //                 child: Text(
+      //               LocaleData.onboardbtn2.getString(context),
+      //               style: TextStyle(
+      //                   fontWeight: FontWeight.bold,
+      //                   color: kWhite,
+      //                   fontSize: 15),
+      //             )),
+      //           ),
+      //         ),
+      //       ],
+      //     )),
     );
   }
 
@@ -386,6 +386,12 @@ class _DoctorListPageState extends State<DoctorListPage> {
           doctorChoix = doctor;
           ischoiceDoctor = 0;
         });
+        ClassUtils.navigateTo(
+            context,
+            AppointmentPage(
+              unPrestataire: doctorChoix,
+              userResponse: widget.userResponse,
+            ));
       },
       child: Container(
         width: (size.width - 40) / 2,
