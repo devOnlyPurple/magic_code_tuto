@@ -21,6 +21,8 @@ import 'package:kondjigbale/views/preload/onboard_page.dart';
 import 'package:kondjigbale/views/preload/splashscreen.dart';
 import 'package:provider/provider.dart';
 
+import 'providers/menu_provider.dart';
+
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
@@ -37,6 +39,7 @@ void main() {
     providers: [
       ChangeNotifierProvider(create: (_) => ListesProvider()),
       ChangeNotifierProvider(create: (_) => UsersProvider()),
+      // ChangeNotifierProvider(create: (_) => VarMethodProvider()),
     ],
     child: const MyApp(),
   ));

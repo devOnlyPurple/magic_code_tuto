@@ -61,3 +61,5 @@ const String HOURS_DOCTOR_SERVER_URL =
     "$SERVER_URL/appointments/get_doctor_creneau";
 const String ADD_RDV_SERVER_URL = "$SERVER_URL/appointments/add_rdv";
 const String CONFIRM_RDV_SERVER_URL = "$SERVER_URL/appointments/confirm_rdv";
+const String CANCEL_RDV_SERVER_URL = "$SERVER_URL/appointments/cancel_rdv";
+const String DELETE_RDV_SERVER_URL = "$SERVER_URL/appointments/delete_rdv";

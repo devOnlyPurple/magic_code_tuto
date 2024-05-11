@@ -36,6 +36,8 @@ import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
+import '../../providers/menu_provider.dart';
+
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -49,6 +51,7 @@ class _HomeState extends State<Home> {
   final ClassUtils classUtils = ClassUtils();
   final storage = FlutterSecureStorage();
   final ClassUtils _classUtils = ClassUtils();
+  VarMethodProvider provider = VarMethodProvider();
   int loadingStatus = 0;
   List<Conseil> lesConseils = [];
   List<String> stringList = [];
@@ -127,6 +130,18 @@ class _HomeState extends State<Home> {
     }
   }
 
+  _viewAlertMethod() async {
+    int payed = provider.payed;
+
+    if (payed == 1) {
+      print('payement en attente ');
+    } else {
+      print('============');
+      print(payed);
+      print("===============");
+    }
+  }
+
   Future<void> launchAllfunction(String uIdentifiant) async {
     bool isConnect = await _connectivity.checkInternetConnectivity();
     if (isConnect) {
@@ -151,6 +166,7 @@ class _HomeState extends State<Home> {
     // TODO: implement initState
     super.initState();
     _loadInformation();
+    _viewAlertMethod();
   }
 
   @override
@@ -194,7 +210,7 @@ class _HomeState extends State<Home> {
                                 AlwaysStoppedAnimation<Color>(Colors.grey),
                           ),
                           SizedBox(height: 10),
-                          Text("Chargement des pharmacies en cours"),
+                          Text("Chargement des menus en cours"),
                         ],
                       ),
                     )
@@ -239,7 +255,7 @@ class _HomeState extends State<Home> {
           ),
         ),
         SizedBox(
-          width: 10.0,
+          width: 15.0,
         )
       ],
     );
@@ -316,7 +332,7 @@ class _HomeState extends State<Home> {
       width: size.width,
       child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: categorieConseil.length,
+          itemCount: 3,
           itemBuilder: (context, i) {
             Conseil uneCategorieConseil = categorieConseil[i];
             return Card(

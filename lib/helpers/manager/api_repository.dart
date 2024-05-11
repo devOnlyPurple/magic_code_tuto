@@ -22,6 +22,8 @@ import 'package:kondjigbale/models/response_login.dart';
 import 'package:kondjigbale/models/uneAdresse_response.dart';
 import 'package:kondjigbale/models/ville_response.dart';
 
+import '../../models/cancel_rdv.dart';
+
 class ApiRepository {
   // login
   // static Future<LoginResponse> login(Map<String, String> datas) async {
@@ -911,6 +913,64 @@ class ApiRepository {
       responseRdv = Confirm_rdv.fromJson(data);
     } else {
       responseRdv = Confirm_rdv(
+        status: response.statusCode.toString(),
+        message: 'Erreur de serveur: ${response.statusCode}',
+      );
+    }
+
+    return responseRdv;
+  }
+
+  // cancel
+
+  static Future<CancelRdv> cancelRdv(Map<String, String> datas) async {
+    Dio dio = await getDio();
+    CancelRdv responseRdv = CancelRdv();
+
+    // Attendre que la future soit résolue
+    datas = await Api.get_default_datas(datas);
+    print(datas);
+    FormData formData = FormData.fromMap(datas);
+
+    Response response = await dio.post(CANCEL_RDV_SERVER_URL, data: formData);
+
+    print(response.data);
+
+    if (response.statusCode == 200) {
+      // Analyser la réponse JSON et créer un objet LoginResponse
+      var data = jsonDecode(response.data);
+      responseRdv = CancelRdv.fromJson(data);
+    } else {
+      responseRdv = CancelRdv(
+        status: response.statusCode.toString(),
+        message: 'Erreur de serveur: ${response.statusCode}',
+      );
+    }
+
+    return responseRdv;
+  }
+
+  // delete
+
+  static Future<CancelRdv> deletelRdv(Map<String, String> datas) async {
+    Dio dio = await getDio();
+    CancelRdv responseRdv = CancelRdv();
+
+    // Attendre que la future soit résolue
+    datas = await Api.get_default_datas(datas);
+    print(datas);
+    FormData formData = FormData.fromMap(datas);
+
+    Response response = await dio.post(DELETE_RDV_SERVER_URL, data: formData);
+
+    print(response.data);
+
+    if (response.statusCode == 200) {
+      // Analyser la réponse JSON et créer un objet LoginResponse
+      var data = jsonDecode(response.data);
+      responseRdv = CancelRdv.fromJson(data);
+    } else {
+      responseRdv = CancelRdv(
         status: response.statusCode.toString(),
         message: 'Erreur de serveur: ${response.statusCode}',
       );

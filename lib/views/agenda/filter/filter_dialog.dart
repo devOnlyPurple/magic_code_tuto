@@ -2,14 +2,16 @@
 
 import 'package:dropdown_plus_plus/dropdown_plus_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:kondjigbale/helpers/constants/constant.dart';
-import 'package:kondjigbale/models/langue.dart';
-import 'package:kondjigbale/models/specialite.dart';
-import 'package:kondjigbale/models/type_consultation.dart';
-import 'package:kondjigbale/models/ville.dart';
 
-class FilterModal extends StatefulWidget {
-  FilterModal({
+import '../../../helpers/constants/constant.dart';
+import '../../../helpers/utils/sizeconfig.dart';
+import '../../../models/langue.dart';
+import '../../../models/specialite.dart';
+import '../../../models/type_consultation.dart';
+import '../../../models/ville.dart';
+
+class FilterDialog extends StatefulWidget {
+  FilterDialog({
     super.key,
     required this.villeList,
     required this.typeConsultations,
@@ -22,6 +24,7 @@ class FilterModal extends StatefulWidget {
     required this.docName,
     required this.onLoadList,
   });
+
   List<Ville>? villeList;
   List<TypeConsultation>? typeConsultations;
   List<Specialite>? specialites;
@@ -33,40 +36,45 @@ class FilterModal extends StatefulWidget {
   String? docName;
   dynamic Function(String speKey, String consulKey, String symKey,
       String villeKey, String langKey, String docName)? onLoadList;
+
   @override
-  State<FilterModal> createState() => _FilterModalState();
+  State<FilterDialog> createState() => _FilterDialogState();
 }
 
-class _FilterModalState extends State<FilterModal> {
-  String _selectVille = '';
-  String _selectSpe = '';
-  String _selectConsu = '';
-  // String _select = '';
-  // String _selectVille = '';
-  // String _selectVille = '';
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    print(widget.consKey);
-  }
-
+class _FilterDialogState extends State<FilterDialog> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return AlertDialog(
-      title: Text(
-        'Filtrer médecins',
-        style: TextStyle(fontWeight: FontWeight.w600),
-      ),
-      content: Container(
-        width: MediaQuery.of(context).size.width / 2,
-        height: 300,
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(10.0),
+
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.all(15.0),
           child: Column(
             children: [
-              Br10(),
+              Br20(),
+              Row(
+                children: [
+                  Text(
+                    "Filtrer médecins",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+                  ),
+                  Spacer(),
+                  InkWell(
+                      onTap: () {
+                        Navigator.of(context).pop(0);
+                      },
+                      child: Icon(
+                        Icons.close,
+                        color: Kprimary,
+                        size: 25,
+                      )),
+                  SizedBox(
+                    width: 10,
+                  )
+                ],
+              ),
+              Br20(),
               specialiteDoc(size),
               Br10(),
               villeList(size),
@@ -74,37 +82,28 @@ class _FilterModalState extends State<FilterModal> {
               consultListe(size),
               Br10(),
               langueList(size),
+              Br50(),
+              Row(
+                children: [
+                  Expanded(
+                    child: _cancelButtonMethod(),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: _confirmButtonMethod(),
+                  )
+                ],
+              )
             ],
           ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop(0);
-          },
-          child: Text(
-            'Annuler',
-            style: TextStyle(
-                fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black),
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            widget.onLoadList!(widget.speKey!, widget.consKey!, '',
-                _selectVille, widget.langKey!, widget.docName!);
-            Navigator.of(context).pop(1);
-          },
-          child: Text(
-            'Appliquer',
-            style: TextStyle(
-                fontWeight: FontWeight.w700, fontSize: 16, color: Kprimary),
-          ),
-        ),
-      ],
     );
   }
 
+  // ville list
   Widget villeList(Size size) {
     List<Map<String, dynamic>> villesAsMap = widget.villeList!.map((ville) {
       return {
@@ -117,7 +116,7 @@ class _FilterModalState extends State<FilterModal> {
       child: Column(
         children: [
           DropdownFormField<Map<String, dynamic>>(
-            dropdownHeight: 200,
+            dropdownHeight: 520,
             onEmptyActionPressed: (String str) async {},
             decoration: InputDecoration(
               focusedBorder: OutlineInputBorder(
@@ -143,6 +142,7 @@ class _FilterModalState extends State<FilterModal> {
                 setState(() {
                   widget.villeKey = selectedValue['key'];
                 });
+                print(selectedValue['nom']);
               }
             },
             displayItemFn: (dynamic item) => Text(
@@ -173,6 +173,7 @@ class _FilterModalState extends State<FilterModal> {
     );
   }
 
+  // consult list
   Widget consultListe(Size size) {
     List<Map<String, dynamic>> consultMap =
         widget.typeConsultations!.map((typeConsult) {
@@ -283,6 +284,7 @@ class _FilterModalState extends State<FilterModal> {
                 setState(() {
                   widget.langKey = selectedValue['key'];
                 });
+                print(selectedValue['nom']);
               }
             },
             validator: null,
@@ -314,7 +316,7 @@ class _FilterModalState extends State<FilterModal> {
     );
   }
 
-  //
+  //specialite
 
   Widget specialiteDoc(Size size) {
     List<Map<String, dynamic>> specialMap = widget.specialites!.map((special) {
@@ -328,7 +330,7 @@ class _FilterModalState extends State<FilterModal> {
       child: Column(
         children: [
           DropdownFormField<Map<String, dynamic>>(
-            dropdownHeight: 200,
+            dropdownHeight: 450,
             onEmptyActionPressed: (String str) async {},
             decoration: InputDecoration(
               focusedBorder: OutlineInputBorder(
@@ -354,6 +356,7 @@ class _FilterModalState extends State<FilterModal> {
                 setState(() {
                   widget.speKey = selectedValue['key'];
                 });
+                print(selectedValue['nom']);
               }
             },
             validator: null,
@@ -383,5 +386,56 @@ class _FilterModalState extends State<FilterModal> {
         ],
       ),
     );
+  }
+
+  SizedBox _cancelButtonMethod() {
+    return SizedBox(
+        width: SizeConfig.screenWidth,
+        child: InkWell(
+          onTap: () async {
+            Navigator.of(context).pop(0);
+          },
+          child: Container(
+            // width: MediaQuery.of(context).size.width,
+            height: 50,
+            decoration: BoxDecoration(
+                color: kRed, borderRadius: BorderRadius.circular(5)),
+            child: Center(
+              child: Text(
+                "Annuler",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15),
+              ),
+            ),
+          ),
+        ));
+  }
+
+  SizedBox _confirmButtonMethod() {
+    return SizedBox(
+        width: SizeConfig.screenWidth,
+        child: InkWell(
+          onTap: () async {
+            widget.onLoadList!(widget.speKey!, widget.consKey!, '',
+                widget.villeKey!, widget.langKey!, widget.docName!);
+            Navigator.of(context).pop(1);
+          },
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+                color: Kprimary, borderRadius: BorderRadius.circular(5)),
+            child: Center(
+              child: Text(
+                "Appliquer",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15),
+              ),
+            ),
+          ),
+        ));
   }
 }

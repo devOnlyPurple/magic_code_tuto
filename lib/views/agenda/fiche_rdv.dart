@@ -8,6 +8,16 @@ import 'package:kondjigbale/models/rdv.dart';
 import 'package:kondjigbale/models/user.dart';
 import 'package:kondjigbale/views/agenda/detail_medecin.dart';
 
+import '../../helpers/constants/api_constant.dart';
+import '../../helpers/constants/widget_constants.dart';
+import '../../helpers/manager/api_repository.dart';
+import '../../helpers/utils/class_utils.dart';
+import '../../models/cancel_rdv.dart';
+import '../../models/rdv_confirm_response.dart';
+import '../../widget/uiSnackbar.dart';
+import '../../widget/widget_helpers.dart';
+import 'payPage.dart';
+
 class FicheRdv extends StatefulWidget {
   FicheRdv({super.key, required this.unRendevous, required this.userResponse});
   Rdv? unRendevous;
@@ -17,6 +27,15 @@ class FicheRdv extends StatefulWidget {
 }
 
 class _FicheRdvState extends State<FicheRdv> {
+  int etat = 100;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print(widget.unRendevous!.keyRendezVous);
+    etat = widget.unRendevous!.etat!;
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -31,15 +50,6 @@ class _FicheRdvState extends State<FicheRdv> {
             size: 18,
           ),
         ),
-        actions: [
-          InkWell(
-            onTap: () {},
-            child: Icon(Icons.calendar_month),
-          ),
-          SizedBox(
-            width: 10,
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -58,14 +68,149 @@ class _FicheRdvState extends State<FicheRdv> {
               Br20(),
               boxInfoMethod(size),
               Br15(),
-              InkWell(
-                onTap: () {},
-                child: Text(
-                  'Supprimer',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold, color: kRed, fontSize: 15),
+              if (etat == 0)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: InkWell(
+                    onTap: () {
+                      CustomLoading(context,
+                          status: "Confirmation de rendez-vous en cours...");
+                      _confirmRdv(widget.unRendevous!.keyRendezVous!);
+                    },
+                    child: Container(
+                      height: 40,
+                      width: size.width,
+                      decoration: BoxDecoration(
+                          color: Kprimary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(7.5)),
+                      child: Center(
+                        child: Text(
+                          "Confirmer le rendez-vous",
+                          style: TextStyle(
+                              color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              )
+              if (widget.unRendevous!.etat == RDV_ACCEPTER &&
+                  widget.unRendevous!.keyNameConsultation == RDV_LIGNE)
+                Column(
+                  children: [
+                    Br15(),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: InkWell(
+                        onTap: () {},
+                        child: Container(
+                          height: 45,
+                          width: size.width,
+                          decoration: BoxDecoration(
+                              color: Ksecondary,
+                              borderRadius: BorderRadius.circular(7.5)),
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Icon(
+                                  Icons.videocam_outlined,
+                                  color: Colors.black,
+                                  size: 15,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text(
+                                  "Debuter la visio",
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              Br15(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  w20(),
+                  if (etat == 0)
+                    Expanded(
+                      child: Row(
+                        children: [
+                          w20(),
+                          InkWell(
+                            onTap: () {
+                              CustomChoixDialog(context,
+                                  title: "Déconnexion",
+                                  content:
+                                      "Vous voulez vraiment annuler ce rendez-vous?",
+                                  acceptText: "Oui",
+                                  cancelText: "Non", cancelPress: () {
+                                Navigator.of(context).pop();
+                              }, acceptPress: () {
+                                Navigator.of(context).pop();
+                                CustomLoading(context,
+                                    status:
+                                        "Annulation de rendez-vous en cours...");
+                                _cancelRdv(widget.unRendevous!.keyRendezVous!);
+                              });
+                            },
+                            child: Text(
+                              'Annuler',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Ksecondary,
+                                  fontSize: 15),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            CustomChoixDialog(context,
+                                title: "Suppresion",
+                                content:
+                                    "Vous voulez vraiment supprimer ce rendez-vous?",
+                                acceptText: "Oui",
+                                cancelText: "Non", cancelPress: () {
+                              Navigator.of(context).pop();
+                            }, acceptPress: () {
+                              Navigator.of(context).pop();
+                              CustomLoading(context,
+                                  status:
+                                      "Suppresion de rendez-vous en cours...");
+                              _deleteRdv(widget.unRendevous!.keyRendezVous!);
+                            });
+                          },
+                          child: Text(
+                            'Supprimer',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: kRed,
+                                fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -159,12 +304,24 @@ class _FicheRdvState extends State<FicheRdv> {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Row(
-                    children: const [
+                    children: [
                       SizedBox(
                         width: 5,
                       ),
                       Text(
-                        "Passé",
+                        etat == RDV_ATTENTE
+                            ? "En attente de confirmation"
+                            : etat == RDV_CONFIRMER
+                                ? "Rendez-vous confirmé"
+                                : etat == RDV_PAYER
+                                    ? "Payé"
+                                    : etat == RDV_ACCEPTER
+                                        ? " Rendez-vous accepté"
+                                        : etat == RDV_REJETER
+                                            ? " Rendez-vous rejeté"
+                                            : etat == RDV_ANNULER
+                                                ? " Rendez-vous rejeté"
+                                                : "Passé",
                         style: TextStyle(
                             color: kWhite, fontWeight: FontWeight.w600),
                       ),
@@ -213,5 +370,60 @@ class _FicheRdvState extends State<FicheRdv> {
         )
       ],
     );
+  }
+
+  _confirmRdv(String keyRendevous) async {
+    final Map<String, String> dataRdv = {
+      'u_identifiant': widget.userResponse!.token!,
+      'r_identifiant': keyRendevous,
+    };
+
+    Confirm_rdv responseConfrimrdv = await ApiRepository.confirmRdv(dataRdv);
+    Navigator.pop(context);
+    if (responseConfrimrdv.status == API_SUCCES_STATUS) {
+      ClassUtils.navigateTo(
+          context,
+          PayPage(
+            payResponse: responseConfrimrdv.information!,
+          ));
+    } else {
+      UiSnackbar.showSnackbar(context, responseConfrimrdv.message!, false);
+    }
+  }
+
+  _cancelRdv(String keyRendevous) async {
+    final Map<String, String> dataRdv = {
+      'u_identifiant': widget.userResponse!.token!,
+      'r_identifiant': keyRendevous,
+    };
+
+    CancelRdv responseConfrimrdv = await ApiRepository.cancelRdv(dataRdv);
+    Navigator.pop(context);
+    if (responseConfrimrdv.status == API_SUCCES_STATUS) {
+      setState(() {
+        etat = responseConfrimrdv.information!.etat!;
+      });
+
+      UiSnackbar.showSnackbar(context, responseConfrimrdv.message!, true);
+    } else {
+      UiSnackbar.showSnackbar(context, responseConfrimrdv.message!, false);
+    }
+  }
+
+  _deleteRdv(String keyRendevous) async {
+    final Map<String, String> dataRdv = {
+      'u_identifiant': widget.userResponse!.token!,
+      'r_identifiant': keyRendevous,
+    };
+
+    CancelRdv responseConfrimrdv = await ApiRepository.deletelRdv(dataRdv);
+    Navigator.pop(context);
+    if (responseConfrimrdv.status == API_SUCCES_STATUS) {
+      Navigator.of(context).pop(1);
+
+      UiSnackbar.showSnackbar(context, responseConfrimrdv.message!, false);
+    } else {
+      UiSnackbar.showSnackbar(context, responseConfrimrdv.message!, false);
+    }
   }
 }

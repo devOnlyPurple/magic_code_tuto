@@ -1,9 +1,8 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:card_loading/card_loading.dart';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:kondjigbale/classe/connect/connect_check.dart';
 import 'package:kondjigbale/classe/localization/locales.dart';
@@ -29,6 +28,9 @@ import 'package:kondjigbale/widget/widget_helpers.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
+import '../../providers/menu_provider.dart';
+import 'filter/filter_dialog.dart';
+
 class DoctorListPage extends StatefulWidget {
   DoctorListPage({super.key, required this.userResponse});
   User? userResponse;
@@ -46,6 +48,7 @@ class _DoctorListPageState extends State<DoctorListPage> {
   String keyVille = '';
   String nameDoctor = '';
   Prestataire? doctorChoix;
+  VarMethodProvider provider = VarMethodProvider();
 
   int ischoiceDoctor = 0; // 1=
   List<Ville> listville = [];
@@ -133,7 +136,20 @@ class _DoctorListPageState extends State<DoctorListPage> {
     // TODO: implement initState
     super.initState();
     launchAllfunction();
+    // _viewAlertMethod();
   }
+
+  // _viewAlertMethod() async {
+  //   int payed = provider.payed;
+
+  //   if (payed == 1) {
+  //     print('payement en attente ');
+  //   } else {
+  //     print('============');
+  //     print(payed);
+  //     print("===============");
+  //   }
+  // }
 
   void showAlert(
       BuildContext context,
@@ -142,9 +158,8 @@ class _DoctorListPageState extends State<DoctorListPage> {
       List<TypeConsultation>? typeConsultations) {
     showDialog(
       context: context,
-      barrierDismissible: false,
       builder: (BuildContext context) {
-        return FilterModal(
+        return FilterDialog(
           villeList: listville,
           langues: langues,
           specialites: specialites,
@@ -173,6 +188,14 @@ class _DoctorListPageState extends State<DoctorListPage> {
   @override
   Widget build(BuildContext context) {
     final providerListes = Provider.of<ListesProvider>(context);
+
+    var status = provider.payed;
+    if (status == 1) {
+      print(status);
+      print('payement en attente');
+    } else {
+      print('payement en jjjjj');
+    }
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
@@ -263,6 +286,8 @@ class _DoctorListPageState extends State<DoctorListPage> {
                     ),
                   ],
                 )
+              else
+                EmptyPage(title: 'Aucun docteur dans cette liste')
             ],
           ),
         ),
@@ -386,12 +411,31 @@ class _DoctorListPageState extends State<DoctorListPage> {
           doctorChoix = doctor;
           ischoiceDoctor = 0;
         });
-        ClassUtils.navigateTo(
+        print(doctor.token);
+
+        Navigator.push(
             context,
-            AppointmentPage(
-              unPrestataire: doctorChoix,
-              userResponse: widget.userResponse,
-            ));
+            PageRouteBuilder(
+                transitionDuration: Duration(milliseconds: 600),
+                transitionsBuilder: (context, animation, animationTime, child) {
+                  animation = CurvedAnimation(
+                      parent: animation, curve: Curves.easeInOut);
+                  const begin = Offset(1.0, 0.0);
+                  const end = Offset.zero;
+                  const curve = Curves.ease;
+                  var tween = Tween(begin: begin, end: end)
+                      .chain(CurveTween(curve: curve));
+                  return SlideTransition(
+                    position: animation.drive(tween),
+                    child: child,
+                  );
+                },
+                pageBuilder: (context, animation, animationTime) {
+                  return AppointmentPage(
+                    unPrestataire: doctorChoix,
+                    userResponse: widget.userResponse,
+                  );
+                }));
       },
       child: Container(
         width: (size.width - 40) / 2,

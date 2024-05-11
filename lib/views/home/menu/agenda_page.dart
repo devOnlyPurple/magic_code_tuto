@@ -220,6 +220,9 @@ class _AgendaPageState extends State<AgendaPage>
                                 )));
                     setState(() {
                       if (responseRdv == 1) {
+                        setState(() {
+                          loadingStatus = 0;
+                        });
                         getAppoint(keyConsult);
                         print(1);
                       }

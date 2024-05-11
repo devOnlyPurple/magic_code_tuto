@@ -3,7 +3,7 @@ class Creneau {
   String? date;
   String? jourName;
   String? horaire;
-  List<dynamic>? reserved;
+  List<String>? reserved;
 
   Creneau({this.key, this.date, this.jourName, this.horaire, this.reserved});
 
@@ -12,13 +12,8 @@ class Creneau {
     date = json['date'];
     jourName = json['jour_name'];
     horaire = json['horaire'];
-    if (json['enfants'] != null) {
-      reserved = [];
-      json['enfants'].forEach((v) {
-        if (v is Map<String, dynamic>) {
-          reserved!.add(v);
-        }
-      });
+    if (json['reserved'] != null) {
+      reserved = List<String>.from(json['reserved']);
     }
   }
 
@@ -29,7 +24,7 @@ class Creneau {
     data['jour_name'] = this.jourName;
     data['horaire'] = this.horaire;
     if (this.reserved != null) {
-      data['reserved'] = this.reserved!.map((v) => v.toJson()).toList();
+      data['reserved'] = List<String>.from(this.reserved!);
     }
     return data;
   }

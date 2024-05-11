@@ -1,6 +1,9 @@
 import 'package:cinetpay/cinetpay.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:kondjigbale/models/confirm.dart';
+
+import '../../providers/menu_provider.dart';
 
 class PayPage extends StatefulWidget {
   PayPage({super.key, required this.payResponse});
@@ -10,6 +13,23 @@ class PayPage extends StatefulWidget {
 }
 
 class _PayPageState extends State<PayPage> {
+  VarMethodProvider provider = VarMethodProvider();
+  late BuildContext _context;
+
+  @override
+  void initState() {
+    super.initState();
+    _context = context;
+  }
+
+  void dispose() {
+    // Appelez la méthode dispose de la super classe
+    super.dispose();
+
+    provider.determine = 1;
+    print('0000');
+  }
+
   @override
   Widget build(BuildContext context) {
     return CinetPayCheckout(

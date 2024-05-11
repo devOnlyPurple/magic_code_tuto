@@ -19,3 +19,15 @@ const String ONBOARDING_2 = "assets/images/two.jpg";
 const String ONBOARDING_3 = "assets/images/tree.jpg";
 
 const String ONBOARDING_4 = "assets/images/four.jpg";
+const RDV_ATTENTE = 0;
+const RDV_CONFIRMER = 1;
+const RDV_PAYER = 2;
+const RDV_ACCEPTER = 3;
+const RDV_REJETER = 4;
+const RDV_ANNULER = 5;
+const RDV_PASSER = 6;
+
+const RDV_CABINET = "Au cabinet";
+const RDV_DOMICILE = "A domicile";
+const RDV_HOPITAL = "A l'hôpital";
+const RDV_LIGNE = "En ligne";

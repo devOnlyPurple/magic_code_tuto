@@ -11,6 +11,7 @@ import 'package:kondjigbale/helpers/constants/api_constant.dart';
 import 'package:kondjigbale/helpers/constants/constant.dart';
 import 'package:kondjigbale/helpers/constants/widget_constants.dart';
 import 'package:kondjigbale/helpers/manager/api_repository.dart';
+import 'package:kondjigbale/helpers/utils/class_utils.dart';
 import 'package:kondjigbale/models/add_rdv_response.dart';
 import 'package:kondjigbale/models/adresseData/adresse_data.dart';
 import 'package:kondjigbale/models/adresse_response.dart';
@@ -29,6 +30,8 @@ import 'package:kondjigbale/widget/uiSnackbar.dart';
 import 'package:kondjigbale/widget/widget_helpers.dart';
 import 'package:validatorless/validatorless.dart';
 import 'package:intl/intl.dart';
+
+import 'payPage.dart';
 
 class AppointmentPage extends StatefulWidget {
   AppointmentPage(
@@ -66,6 +69,7 @@ class _AppointmentPageState extends State<AppointmentPage>
   String nameTypeConsult = '';
   String dateSelect = "";
   String dateSelectNoFormat = "";
+  String amount = '';
   //end
   final ConnectivityChecker _connectivity = ConnectivityChecker();
   Future<void> get_doctor_creneau(String tcIdentifiant) async {
@@ -81,6 +85,7 @@ class _AppointmentPageState extends State<AppointmentPage>
       if (creneau.status == API_SUCCES_STATUS) {
         if (this.mounted) {
           setState(() {
+            amount = creneau.information!.amount!;
             listCreneau = creneau.information!.creneau!;
             controller = TabController(length: listCreneau.length, vsync: this);
             loadingStatus = 1;
@@ -515,11 +520,16 @@ class _AppointmentPageState extends State<AppointmentPage>
                   );
                 },
                 children: listCreneau
-                    .where((creneau) => creneau.horaire != null)
+                    .where((creneau) =>
+                        creneau.horaire != null ||
+                        (creneau.reserved != null &&
+                            creneau.reserved!.isNotEmpty))
                     .map((creneau) {
                   List<String> result =
                       genererHeures(creneau.horaire!, dureConsultation);
-                  return hourCard(result);
+
+                  List<String> reservedHours = creneau.reserved ?? [];
+                  return hourCard(result, reservedHours);
                 }).toList(),
               ))
       ],
@@ -653,7 +663,7 @@ class _AppointmentPageState extends State<AppointmentPage>
     return formattedDate;
   }
 
-  Widget hourCard(List<String> hours) {
+  Widget hourCard(List<String> hours, List<String> reservedHours) {
     return GridView.builder(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -666,22 +676,27 @@ class _AppointmentPageState extends State<AppointmentPage>
       itemCount: hours.length,
       itemBuilder: (context, index) {
         bool isSelected = index == selectedHours;
+        bool isReserved = reservedHours.contains(hours[index]);
         return GridTile(
             child: InkWell(
-          onTap: () {
-            setState(() {
-              selectedHours = index;
-              heureRdv = hours[index];
-              pageAndSelctedIndex = [PageIndex, selectedHours];
-            });
-            // print(heureRdv);
-          },
+          onTap: !isReserved
+              ? () {
+                  setState(() {
+                    selectedHours = index;
+                    heureRdv = hours[index];
+                    pageAndSelctedIndex = [PageIndex, selectedHours];
+                  });
+                  // print(heureRdv);
+                }
+              : null,
           child: Container(
             margin: EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: isSelected
                   ? Ksecondary.withOpacity(0.7)
-                  : Kprimary.withOpacity(0.2),
+                  : isReserved
+                      ? Colors.grey.shade200 // Griser si réservé
+                      : Kprimary.withOpacity(0.2),
               border: Border.all(color: Colors.grey.shade200), // Bordure grise
               borderRadius: BorderRadius.circular(8), // Bordure arrondie
             ),
@@ -699,6 +714,7 @@ class _AppointmentPageState extends State<AppointmentPage>
   }
 
   Widget buildThirdStep(Size size) {
+    Prestataire unDoc = widget.unPrestataire!;
     return Column(children: [
       Center(
         child: Text(
@@ -740,6 +756,23 @@ class _AppointmentPageState extends State<AppointmentPage>
                 SizedBox(
                   width: 20,
                 ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${unDoc.prenoms!} ${unDoc.nom!}',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
+                      Br2(),
+                      Text(
+                        unDoc.denominationSpecialite!,
+                        softWrap: true,
+                      )
+                    ],
+                  ),
+                )
               ],
             ),
             Br15(),
@@ -753,7 +786,16 @@ class _AppointmentPageState extends State<AppointmentPage>
             recapListMethod(title: "Heure de début:", value: heureRdv),
           ],
         ),
-      )
+      ),
+      Br20(),
+      Text(
+          textAlign: TextAlign.justify,
+          "NB : Un paiement de $amount non rembourable est requis pour confirmer votre prise de rendez-vous. Vous serez rédirigé vers une page de paiement pour éffectuer votre transaction",
+          style: const TextStyle(
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+              color: kRed,
+              fontStyle: FontStyle.italic)),
     ]);
   }
 
@@ -879,9 +921,11 @@ class _AppointmentPageState extends State<AppointmentPage>
     Confirm_rdv responseConfrimrdv = await ApiRepository.confirmRdv(dataRdv);
     Navigator.pop(context);
     if (responseConfrimrdv.status == API_SUCCES_STATUS) {
-      GoRouter.of(context).go('/payPage', extra: <String, dynamic>{
-        'payResponse': responseConfrimrdv.information,
-      });
+      ClassUtils.navigateTo(
+          context,
+          PayPage(
+            payResponse: responseConfrimrdv.information!,
+          ));
     } else {
       UiSnackbar.showSnackbar(context, responseConfrimrdv.message!, false);
     }

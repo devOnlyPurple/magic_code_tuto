@@ -61,7 +61,8 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                 Text(
                   LocaleData.forget.getString(context),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 30),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w700, fontSize: 30),
                 ),
                 Br50(),
 
@@ -119,12 +120,14 @@ class _ForgetPasswordState extends State<ForgetPassword> {
 
                   // controller: controller,
                   // obscureText: obscuretext,
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                      fontSize: 17, fontWeight: FontWeight.w500),
                   decoration: InputDecoration(
                     counterText: '',
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(color: kformFieldBackgroundColor),
+                      borderSide:
+                          const BorderSide(color: kformFieldBackgroundColor),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -202,7 +205,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     print(responsesignup.status);
 
     if (responsesignup.status == API_SUCCES_STATUS) {
-      print('Maman');
+      print(responsesignup.resetPass);
       ClassUtils.navigateTo(
           context,
           ForgetOtp(
