@@ -38,9 +38,9 @@ class FilterModal extends StatefulWidget {
 }
 
 class _FilterModalState extends State<FilterModal> {
-  String _selectVille = '';
-  String _selectSpe = '';
-  String _selectConsu = '';
+  final String _selectVille = '';
+  final String _selectSpe = '';
+  final String _selectConsu = '';
   // String _select = '';
   // String _selectVille = '';
   // String _selectVille = '';
@@ -59,7 +59,7 @@ class _FilterModalState extends State<FilterModal> {
         'Filtrer médecins',
         style: TextStyle(fontWeight: FontWeight.w600),
       ),
-      content: Container(
+      content: SizedBox(
         width: MediaQuery.of(context).size.width / 2,
         height: 300,
         child: SingleChildScrollView(
@@ -112,7 +112,7 @@ class _FilterModalState extends State<FilterModal> {
         'nom': ville.nom,
       };
     }).toList();
-    return Container(
+    return SizedBox(
       width: size.width,
       child: Column(
         children: [
@@ -181,7 +181,7 @@ class _FilterModalState extends State<FilterModal> {
         'nom': typeConsult.nom,
       };
     }).toList();
-    return Container(
+    return SizedBox(
       width: size.width,
       child: Column(
         children: [
@@ -252,7 +252,7 @@ class _FilterModalState extends State<FilterModal> {
         'nom': langues.nom,
       };
     }).toList();
-    return Container(
+    return SizedBox(
       width: size.width,
       child: Column(
         children: [
@@ -323,7 +323,7 @@ class _FilterModalState extends State<FilterModal> {
         'nom': special.nom,
       };
     }).toList();
-    return Container(
+    return SizedBox(
       width: size.width,
       child: Column(
         children: [

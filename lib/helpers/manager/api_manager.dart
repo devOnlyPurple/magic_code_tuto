@@ -31,4 +31,21 @@ class Api {
 
     return datas;
   }
+
+  static get_default_datas2(Map<String, String> datas) async {
+    final FlutterLocalization localization = FlutterLocalization.instance;
+
+    String dIdentifiant = 'XOF';
+    // String lang = localization.currentLocale!.languageCode;
+    const storage = FlutterSecureStorage();
+
+    final String? registrationId = await storage.read(key: 'instance_token');
+    datas.addAll({
+      "access_token": ACCESS_TOKEN,
+      "c_identifiant": CANAL,
+      "dv_identifiant": dIdentifiant,
+    });
+
+    return datas;
+  }
 }

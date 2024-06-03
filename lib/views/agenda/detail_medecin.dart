@@ -1,8 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:kondjigbale/helpers/constants/constant.dart';
 import 'package:kondjigbale/models/presta_association.dart';
 import 'package:kondjigbale/models/presta_experience.dart';
@@ -106,7 +104,7 @@ class _DetailMedecinState extends State<DetailMedecin> {
   Widget infoPrestataireMethode() {
     return Column(
       children: [
-        Container(
+        SizedBox(
           height: 60,
           child: Row(
             children: [
@@ -159,7 +157,7 @@ class _DetailMedecinState extends State<DetailMedecin> {
         ),
         Br10(),
         // expertises
-        Container(
+        SizedBox(
           height: 80,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,7 +296,7 @@ class _DetailMedecinState extends State<DetailMedecin> {
 
         // langue
         Br10(),
-        Container(
+        SizedBox(
           height: 60,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -358,7 +356,7 @@ class _DetailMedecinState extends State<DetailMedecin> {
 
         //info legales
         Br10(),
-        Container(
+        SizedBox(
           height: 60,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -569,7 +567,7 @@ class _DetailMedecinState extends State<DetailMedecin> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
+                    SizedBox(
                       width: 70,
                       child: Text(
                         uneConsultation.denominationTypeConsultation!,
@@ -611,7 +609,7 @@ class _DetailMedecinState extends State<DetailMedecin> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
+                    SizedBox(
                       width: 100,
                       child: Text(
                         uneAssociation.name!,

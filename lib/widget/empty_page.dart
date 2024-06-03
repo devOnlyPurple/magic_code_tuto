@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:kondjigbale/helpers/constants/constant.dart';
 
 class EmptyPage extends StatelessWidget {
-  EmptyPage({super.key, required this.title});
+  EmptyPage({super.key, required this.title, this.asset});
   String title;
+  String? asset;
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -17,7 +18,7 @@ class EmptyPage extends StatelessWidget {
           Br50(),
           Br50(),
           Image.asset(
-            "assets/icons/empty.png",
+            asset != null ? asset! : "assets/icons/empty.png",
             width: size.width / 1,
             height: 250,
           ),

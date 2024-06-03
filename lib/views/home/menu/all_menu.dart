@@ -23,6 +23,11 @@ import 'package:kondjigbale/views/home/menu/pharmacie_page.dart';
 import 'package:kondjigbale/widget/widget_helpers.dart';
 import 'package:provider/provider.dart';
 
+import '../../../helpers/manager/default_manager.dart';
+import '../../../helpers/utils/lat_long.dart';
+import '../../../models/local/default_data.dart';
+import '../../../models/local/position_lat_long.dart';
+
 class AllMenu extends StatefulWidget {
   AllMenu({super.key, required this.uIdentifiant, required this.userResponse});
   String? uIdentifiant;
@@ -80,11 +85,29 @@ class _AllMenuState extends State<AllMenu> {
     }
   }
 
+  DefaultData? _defaultData;
+  void _loadData() {
+    DefaultData? data = DataManager.getDefaultData();
+    setState(() {
+      _defaultData = data;
+    });
+    print(_defaultData!.deviceId);
+  }
+
+  PositionLatLong? devicePosition;
+  loadDeviceInfo() async {
+    devicePosition = await PositionAllInfo().getDevicePosition();
+
+    print(devicePosition!.latitude);
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     launchAllfunction();
+    _loadData();
+    loadDeviceInfo();
   }
 
   @override
@@ -223,10 +246,20 @@ class _AllMenuState extends State<AllMenu> {
     switch (code) {
       case 'M001':
         ClassUtils.navigateTo(
-            context, AgendaPage(userResponse: widget.userResponse));
+            context,
+            AgendaPage(
+              userResponse: widget.userResponse,
+              data: _defaultData,
+              devicePosition: devicePosition,
+            ));
         break;
       case 'M002':
-        ClassUtils.navigateTo(context, PharmaPage());
+        ClassUtils.navigateTo(
+            context,
+            PharmaPage(
+              data: _defaultData,
+              devicePosition: devicePosition,
+            ));
         break;
       case 'M003':
         ClassUtils.navigateTo(
@@ -234,6 +267,8 @@ class _AllMenuState extends State<AllMenu> {
             ConseilPage(
               categorieconseil: categoriesConseil,
               userResponse: widget.userResponse,
+              data: _defaultData,
+              devicePosition: devicePosition,
             ));
         break;
       case 'M004':
@@ -242,6 +277,8 @@ class _AllMenuState extends State<AllMenu> {
             ActuPage(
               categoryblog: categoryblog,
               userResponse: userresponse,
+              data: _defaultData,
+              devicePosition: devicePosition,
             ));
         break;
       case 'M005':

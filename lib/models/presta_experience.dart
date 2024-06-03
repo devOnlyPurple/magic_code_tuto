@@ -12,10 +12,10 @@ class Experiences {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['Periode'] = this.periode;
-    data['denomination_poste'] = this.denominationPoste;
-    data['formation_sanitaire'] = this.formationSanitaire;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['Periode'] = periode;
+    data['denomination_poste'] = denominationPoste;
+    data['formation_sanitaire'] = formationSanitaire;
     return data;
   }
 }

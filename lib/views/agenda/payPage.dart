@@ -1,6 +1,5 @@
 import 'package:cinetpay/cinetpay.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:kondjigbale/models/confirm.dart';
 
 import '../../providers/menu_provider.dart';
@@ -22,6 +21,7 @@ class _PayPageState extends State<PayPage> {
     _context = context;
   }
 
+  @override
   void dispose() {
     // Appelez la méthode dispose de la super classe
     super.dispose();

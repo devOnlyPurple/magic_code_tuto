@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl_phone_field/countries.dart';
 import 'package:kondjigbale/classe/localization/locales.dart';
 import 'package:kondjigbale/helpers/constants/constant.dart';
@@ -21,7 +22,7 @@ import 'package:kondjigbale/views/preload/onboard_page.dart';
 import 'package:kondjigbale/views/preload/splashscreen.dart';
 import 'package:provider/provider.dart';
 
-import 'providers/menu_provider.dart';
+import 'classe/connect/class_monitoring_internet.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -32,9 +33,13 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
-void main() {
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = MyHttpOverrides();
+  await Hive.initFlutter();
+  await Hive.openBox('defaultData');
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => ListesProvider()),
@@ -43,6 +48,7 @@ void main() {
     ],
     child: const MyApp(),
   ));
+  // ConnectivityService().startMonitoring(navigatorKey.currentContext!);
 }
 
 class MyApp extends StatefulWidget {
@@ -64,6 +70,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      key: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'Kondjigbale',
       theme: ThemeData(
@@ -102,6 +109,10 @@ final goRouter = GoRouter(
     ),
     GoRoute(
       path: '/home',
+      builder: (context, state) => const Home(),
+    ),
+     GoRoute(
+      path: '/webApp',
       builder: (context, state) => const Home(),
     ),
     GoRoute(

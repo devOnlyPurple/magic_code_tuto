@@ -258,7 +258,7 @@ class _AdresseHomeState extends State<AdresseHome> {
                           },
                           child: Container(
                             height: 25,
-                            width: size.width / 4,
+                            width: size.width / 3,
                             decoration: BoxDecoration(
                                 color: Kprimary.withOpacity(0.3),
                                 borderRadius: BorderRadius.circular(7.5)),

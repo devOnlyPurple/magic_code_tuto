@@ -1,10 +1,15 @@
 // ignore_for_file: prefer_const_literals_to_create_immutables, prefer_const_constructors
 
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_loading/card_loading.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:kondjigbale/classe/connect/connect_check.dart';
 import 'package:kondjigbale/helpers/constants/api_constant.dart';
 import 'package:kondjigbale/helpers/constants/constant.dart';
@@ -36,6 +41,11 @@ import 'package:reorderable_grid_view/reorderable_grid_view.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
+import '../../classe/connect/class_monitoring_internet.dart';
+import '../../helpers/manager/default_manager.dart';
+import '../../helpers/utils/lat_long.dart';
+import '../../models/local/default_data.dart';
+import '../../models/local/position_lat_long.dart';
 import '../../providers/menu_provider.dart';
 
 class Home extends StatefulWidget {
@@ -51,10 +61,11 @@ class _HomeState extends State<Home> {
   final ClassUtils classUtils = ClassUtils();
   final storage = FlutterSecureStorage();
   final ClassUtils _classUtils = ClassUtils();
-  VarMethodProvider provider = VarMethodProvider();
+
   int loadingStatus = 0;
   List<Conseil> lesConseils = [];
   List<String> stringList = [];
+  UsersProvider userprovider = UsersProvider();
   List<Menu> lesMenu = [];
   late MenuSpecialResponse specialContent =
       MenuSpecialResponse(information: '');
@@ -67,13 +78,19 @@ class _HomeState extends State<Home> {
 
   final CarouselController carouselController = CarouselController();
   int currentIndex = 0;
-  Future<void> getConseil(String uIdentifant) async {
+  Future<void> getConseil(
+      String uIdentifant, String latitude, String longitude) async {
     final Map<String, String> dataconseil = {
       'u_identifiant': uIdentifant,
       'e_identifiant': '',
       'cat_identifiant': '',
       'type_liste': '0',
       'key_conseil': '',
+      "lang": _defaultData!.langue!,
+      "latMember": latitude,
+      "longMember": longitude,
+      "device_id": _defaultData!.deviceId!,
+      "device_name": _defaultData!.deviceName!,
     };
 
     ConseilResponse listeConseil = await ApiRepository.listConseil(dataconseil);
@@ -130,44 +147,61 @@ class _HomeState extends State<Home> {
     }
   }
 
-  _viewAlertMethod() async {
-    int payed = provider.payed;
-
-    if (payed == 1) {
-      print('payement en attente ');
-    } else {
-      print('============');
-      print(payed);
-      print("===============");
-    }
+  Future<void> launchAllfunction(String uIdentifiant) async {
+    // uIdentifiant = userprovider.userResponse.token!;
+    getMenuList(uIdentifiant);
+    getConseil(uIdentifiant, devicePosition!.latitude.toString(),
+        devicePosition!.longitude.toString());
   }
 
-  Future<void> launchAllfunction(String uIdentifiant) async {
-    bool isConnect = await _connectivity.checkInternetConnectivity();
-    if (isConnect) {
-      getConseil(uIdentifiant);
-      getMenuList(uIdentifiant);
-    } else {
-      print("no connexion");
-      CustomErrorDialog(
-        context,
-        content: "Vérifiez votre connexion internet",
-        buttonText: "Réessayez",
-        onPressed: () {
-          launchAllfunction(uIdentifiant);
-          Navigator.of(context).pop();
-        },
-      );
-    }
+  PositionLatLong? devicePosition;
+  loadDeviceInfo() async {
+    devicePosition = await PositionAllInfo().getDevicePosition();
+    print(devicePosition!.latitude);
   }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    loadDeviceInfo();
     _loadInformation();
-    _viewAlertMethod();
+    _loadData();
+    // getConnectivity();
+    //  ConnectivityService().startMonitoring(context, _listentest);
   }
+
+  // late StreamSubscription subscription;
+  // bool isDeviceConnected = false;
+  // bool isAlertSet = false;
+  // getConnectivity() =>
+  //     subscription = Connectivity().onConnectivityChanged.listen(
+  //       (ConnectivityResult result) async {
+  //         isDeviceConnected = await InternetConnectionChecker().hasConnection;
+  //         if (!isDeviceConnected && isAlertSet == false) {
+  //           showDialogBox();
+  //           setState(() => isAlertSet = true);
+  //         }
+  //       },
+  //     );
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    // subscription.cancel();
+  }
+
+  DefaultData? _defaultData;
+  void _loadData() {
+    DefaultData? data = DataManager.getDefaultData();
+    setState(() {
+      _defaultData = data;
+    });
+    print(_defaultData!.deviceId);
+  }
+
+  double latitude = 0.0;
+  double longitude = 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -175,8 +209,8 @@ class _HomeState extends State<Home> {
     final userInfo = Provider.of<UsersProvider>(context);
     final providerListes = Provider.of<ListesProvider>(context);
 
-    print(userInfo.userResponse.nom);
-    print(providerListes.categoriesConseil[0].nom);
+    // print(userInfo.userResponse.nom);
+    // print(providerListes.categoriesConseil[0].nom);
 
     return Scaffold(
       appBar: appBarMethod(
@@ -189,7 +223,7 @@ class _HomeState extends State<Home> {
               // Br20(),
               horizontalList(size),
               Br20(),
-              titleAndMore(),
+              titleAndMore(providerListes.categoriesConseil),
               Br5(),
               if (lesConseils.isNotEmpty) CatConseilList(lesConseils, size),
               Br20(),
@@ -419,7 +453,7 @@ class _HomeState extends State<Home> {
     });
   }
 
-  Widget titleAndMore() {
+  Widget titleAndMore(List<CategorieConseil> categorieconseil) {
     return Container(
       child: Row(
         children: [
@@ -440,7 +474,17 @@ class _HomeState extends State<Home> {
           ),
           Spacer(),
           InkWell(
-            onTap: () {},
+            onTap: () async {
+              loadDeviceInfo();
+              await ClassUtils.navigateTo(
+                  context,
+                  ConseilPage(
+                    categorieconseil: categorieconseil,
+                    userResponse: userResponse,
+                    data: _defaultData,
+                    devicePosition: devicePosition,
+                  ));
+            },
             child: Row(
               children: [
                 Text("Voir plus"),
@@ -528,10 +572,21 @@ class _HomeState extends State<Home> {
       List<CategorieConseil>? categoriesConseil}) async {
     switch (code) {
       case 'M001':
-        ClassUtils.navigateTo(context, AgendaPage(userResponse: userresponse));
+        ClassUtils.navigateTo(
+            context,
+            AgendaPage(
+              userResponse: userresponse,
+              data: _defaultData,
+              devicePosition: devicePosition,
+            ));
         break;
       case 'M002':
-        ClassUtils.navigateTo(context, PharmaPage());
+        ClassUtils.navigateTo(
+            context,
+            PharmaPage(
+              data: _defaultData,
+              devicePosition: devicePosition,
+            ));
         break;
       case 'M003':
         ClassUtils.navigateTo(
@@ -539,11 +594,19 @@ class _HomeState extends State<Home> {
             ConseilPage(
               categorieconseil: categoriesConseil,
               userResponse: userresponse,
+              data: _defaultData,
+              devicePosition: devicePosition,
             ));
         break;
       case 'M004':
-        ClassUtils.navigateTo(context,
-            ActuPage(categoryblog: categoryblog, userResponse: userresponse));
+        ClassUtils.navigateTo(
+            context,
+            ActuPage(
+              categoryblog: categoryblog,
+              userResponse: userresponse,
+              data: _defaultData,
+              devicePosition: devicePosition,
+            ));
         break;
       case 'M005':
         print('555');
@@ -600,10 +663,12 @@ class _HomeState extends State<Home> {
           child: Padding(
             padding: const EdgeInsets.all(2.0),
             child: InkWell(
-              onTap: () {
+              onTap: () async {
+                loadDeviceInfo();
+
                 if (item.etat == '1') {
                   if (item.typeMenu == "1") {
-                    _navigate_menu(item.codeMenu!,
+                    await _navigate_menu(item.codeMenu!,
                         categoryblog: categoryblog,
                         userresponse: userresponse,
                         categoriesConseil: categorieConseil);
@@ -748,4 +813,27 @@ class _HomeState extends State<Home> {
       );
     }
   }
+
+  // showDialogBox() => showCupertinoDialog<String>(
+  //       context: context,
+  //       builder: (BuildContext context) => CupertinoAlertDialog(
+  //         title: const Text('No Connection'),
+  //         content: const Text('Please check your internet connectivity'),
+  //         actions: <Widget>[
+  //           TextButton(
+  //             onPressed: () async {
+  //               Navigator.pop(context, 'Cancel');
+  //               setState(() => isAlertSet = false);
+  //               isDeviceConnected =
+  //                   await InternetConnectionChecker().hasConnection;
+  //               if (!isDeviceConnected && isAlertSet == false) {
+  //                 showDialogBox();
+  //                 setState(() => isAlertSet = true);
+  //               }
+  //             },
+  //             child: const Text('OK'),
+  //           ),
+  //         ],
+  //       ),
+  //     );
 }

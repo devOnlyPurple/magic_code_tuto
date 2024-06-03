@@ -1,8 +1,6 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:kondjigbale/classe/connect/connect_check.dart';
 import 'package:kondjigbale/helpers/constants/api_constant.dart';
 import 'package:kondjigbale/helpers/constants/constant.dart';
@@ -11,17 +9,25 @@ import 'package:kondjigbale/helpers/utils/class_utils.dart';
 import 'package:kondjigbale/models/actu_response.dart';
 import 'package:kondjigbale/models/actualite.dart';
 import 'package:kondjigbale/models/categorie_blog.dart';
+import 'package:kondjigbale/models/local/position_lat_long.dart';
 import 'package:kondjigbale/models/user.dart';
-import 'package:kondjigbale/providers/listes_provider.dart';
 import 'package:kondjigbale/views/blog/detail_blog.dart';
 import 'package:kondjigbale/widget/empty_page.dart';
 import 'package:kondjigbale/widget/widget_helpers.dart';
-import 'package:provider/provider.dart';
+
+import '../../../models/local/default_data.dart';
 
 class ActuPage extends StatefulWidget {
-  ActuPage({super.key, required this.categoryblog, required this.userResponse});
+  ActuPage(
+      {super.key,
+      required this.categoryblog,
+      required this.userResponse,
+      required this.data,
+      required this.devicePosition});
   List<CategorieBlog>? categoryblog;
   User? userResponse;
+  DefaultData? data;
+  PositionLatLong? devicePosition;
   @override
   State<ActuPage> createState() => _ActuPageState();
 }
@@ -35,14 +41,20 @@ class _ActuPageState extends State<ActuPage>
   List<Actualite> listActualites = [];
   int loadingStatus = 0;
   String keyblog = '';
-  Future<void> getActulist(String key_blog) async {
+  Future<void> getActulist(
+      String keyBlog, String latitude, String longitude) async {
     final Map<String, String> dataMenu = {
       'u_identifiant': widget.userResponse!.token!,
-      'cat_identifiant': key_blog,
+      'cat_identifiant': keyBlog,
+      "lang": widget.data!.langue!,
+      "latMember": latitude,
+      "longMember": longitude,
+      "device_id": widget.data!.deviceId!,
+      "device_name": widget.data!.deviceName!,
     };
     ActuResponse listeMenu = await ApiRepository.listActu(dataMenu);
     if (listeMenu.status == API_SUCCES_STATUS) {
-      if (this.mounted) {
+      if (mounted) {
         setState(() {
           listActualites = listeMenu.information!;
 
@@ -50,7 +62,7 @@ class _ActuPageState extends State<ActuPage>
         });
       }
     } else {
-      if (this.mounted) {
+      if (mounted) {
         setState(() {
           loadingStatus = 1;
         });
@@ -89,21 +101,22 @@ class _ActuPageState extends State<ActuPage>
 
   final ConnectivityChecker _connectivity = ConnectivityChecker();
   Future<void> launchAllfunction() async {
-    bool isConnect = await _connectivity.checkInternetConnectivity();
-    if (isConnect) {
-      getActulist(keyblog);
-    } else {
-      print("no connexion");
-      CustomErrorDialog(
-        context,
-        content: "Vérifiez votre connexion internet",
-        buttonText: "Réessayez",
-        onPressed: () {
-          launchAllfunction();
-          Navigator.of(context).pop();
-        },
-      );
-    }
+    // bool isConnect = await _connectivity.checkInternetConnectivity();
+    // if (isConnect) {
+    getActulist(keyblog, widget.devicePosition!.latitude.toString(),
+        widget.devicePosition!.longitude.toString());
+    // } else {
+    //   print("no connexion");
+    //   CustomErrorDialog(
+    //     context,
+    //     content: "Vérifiez votre connexion internet",
+    //     buttonText: "Réessayez",
+    //     onPressed: () {
+    //       launchAllfunction();
+    //       Navigator.of(context).pop();
+    //     },
+    //   );
+    // }
   }
 
   @override
@@ -146,7 +159,8 @@ class _ActuPageState extends State<ActuPage>
                 keyblog = categoriesWithTous[index].keyCategorie!;
                 loadingStatus = 0;
               });
-              getActulist(keyblog);
+              getActulist(keyblog, widget.devicePosition!.latitude.toString(),
+                  widget.devicePosition!.longitude.toString());
             },
             tabs: categoriesWithTous.map((tab) {
               return Tab(
@@ -162,7 +176,8 @@ class _ActuPageState extends State<ActuPage>
               keyblog = categoriesWithTous[index].keyCategorie!;
               loadingStatus = 0;
             });
-            getActulist(keyblog);
+            getActulist(keyblog, widget.devicePosition!.latitude.toString(),
+                widget.devicePosition!.longitude.toString());
             controller!.animateTo(
               index,
               duration: Duration(milliseconds: 300),

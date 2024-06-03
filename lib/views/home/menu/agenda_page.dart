@@ -1,11 +1,7 @@
 // ignore_for_file: avoid_print, prefer_const_literals_to_create_immutables, prefer_const_constructors, prefer_interpolation_to_compose_strings
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_localization/flutter_localization.dart';
 import 'package:kondjigbale/classe/connect/connect_check.dart';
-import 'package:kondjigbale/classe/localization/locales.dart';
 import 'package:kondjigbale/helpers/constants/api_constant.dart';
 import 'package:kondjigbale/helpers/constants/constant.dart';
 import 'package:kondjigbale/helpers/manager/api_repository.dart';
@@ -18,12 +14,21 @@ import 'package:kondjigbale/providers/listes_provider.dart';
 import 'package:kondjigbale/views/agenda/doctor_list.dart';
 import 'package:kondjigbale/views/agenda/fiche_rdv.dart';
 import 'package:kondjigbale/widget/empty_page.dart';
-import 'package:kondjigbale/widget/widget_helpers.dart';
 import 'package:provider/provider.dart';
 
+import '../../../helpers/utils/lat_long.dart';
+import '../../../models/local/default_data.dart';
+import '../../../models/local/position_lat_long.dart';
+
 class AgendaPage extends StatefulWidget {
-  AgendaPage({super.key, required this.userResponse});
+  AgendaPage(
+      {super.key,
+      required this.userResponse,
+      required this.data,
+      required this.devicePosition});
   User? userResponse;
+  DefaultData? data;
+  PositionLatLong? devicePosition;
   @override
   State<AgendaPage> createState() => _AgendaPageState();
 }
@@ -37,14 +42,20 @@ class _AgendaPageState extends State<AgendaPage>
   String keyConsult = '';
 
   int loadingStatus = 0;
-  Future<void> getAppoint(String keyConsulting) async {
+  Future<void> getAppoint(
+      String keyConsulting, String latitude, String longitude) async {
     final Map<String, String> dataMenu = {
       'u_identifiant': widget.userResponse!.token!,
       'tc_identifiant': keyConsulting,
+      "lang": widget.data!.langue!,
+      "latMember": latitude,
+      "longMember": longitude,
+      "device_id": widget.data!.deviceId!,
+      "device_name": widget.data!.deviceName!,
     };
     RdvResponse listeMenu = await ApiRepository.listRdv(dataMenu);
     if (listeMenu.status == API_SUCCES_STATUS) {
-      if (this.mounted) {
+      if (mounted) {
         setState(() {
           rdvCurrentList = listeMenu.information!.current!;
           rdvPastList = listeMenu.information!.past!;
@@ -52,7 +63,7 @@ class _AgendaPageState extends State<AgendaPage>
         });
       }
     } else {
-      if (this.mounted) {
+      if (mounted) {
         setState(() {
           loadingStatus = 1;
         });
@@ -65,21 +76,22 @@ class _AgendaPageState extends State<AgendaPage>
 
   final ConnectivityChecker _connectivity = ConnectivityChecker();
   Future<void> launchAllfunction() async {
-    bool isConnect = await _connectivity.checkInternetConnectivity();
-    if (isConnect) {
-      getAppoint(keyConsult);
-    } else {
-      print("no connexion");
-      CustomErrorDialog(
-        context,
-        content: "Vérifiez votre connexion internet",
-        buttonText: "Réessayez",
-        onPressed: () {
-          launchAllfunction();
-          Navigator.of(context).pop();
-        },
-      );
-    }
+    // bool isConnect = await _connectivity.checkInternetConnectivity();
+    // if (isConnect) {
+    getAppoint(keyConsult, widget.devicePosition!.latitude.toString(),
+        widget.devicePosition!.longitude.toString());
+    // } else {
+    //   print("no connexion");
+    //   CustomErrorDialog(
+    //     context,
+    //     content: "Vérifiez votre connexion internet",
+    //     buttonText: "Réessayez",
+    //     onPressed: () {
+    //       launchAllfunction();
+    //       Navigator.of(context).pop();
+    //     },
+    //   );
+    // }
   }
 
   @override
@@ -88,6 +100,13 @@ class _AgendaPageState extends State<AgendaPage>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     launchAllfunction();
+    loadDeviceInfo();
+  }
+
+  PositionLatLong? devicePosition;
+  loadDeviceInfo() async {
+    devicePosition = await PositionAllInfo().getDevicePosition();
+    print(devicePosition!.latitude);
   }
 
   String _selectedType = '';
@@ -119,7 +138,7 @@ class _AgendaPageState extends State<AgendaPage>
             Br10(),
             typeConsulting(providerListes.typeConsultations),
             Br10(),
-            Container(
+            SizedBox(
               height: 50,
               child: TabBar(
                 unselectedLabelColor: Colors.grey,
@@ -148,8 +167,8 @@ class _AgendaPageState extends State<AgendaPage>
     );
   }
 
-  SizedBox typeConsulting(List<TypeConsultation> _typeConsultations) {
-    List<TypeConsultation> allTypes = List.from(_typeConsultations);
+  SizedBox typeConsulting(List<TypeConsultation> typeConsultations) {
+    List<TypeConsultation> allTypes = List.from(typeConsultations);
     allTypes.insert(
         0, TypeConsultation(keyTypeConsultation: "", nom: "Tous les types"));
     return SizedBox(
@@ -162,13 +181,16 @@ class _AgendaPageState extends State<AgendaPage>
               child: Text(value.nom!),
             );
           }).toList(),
-          onChanged: (String? newValue) {
+          onChanged: (String? newValue) async {
             setState(() {
               _selectedType = newValue!;
               keyConsult = _selectedType;
               loadingStatus = 0;
             });
-            getAppoint(keyConsult);
+
+            await loadDeviceInfo();
+            getAppoint(keyConsult, devicePosition!.latitude.toString(),
+                devicePosition!.longitude.toString());
             print(keyConsult);
           },
           decoration: InputDecoration(
@@ -217,13 +239,20 @@ class _AgendaPageState extends State<AgendaPage>
                             builder: (_) => FicheRdv(
                                   unRendevous: unRendevous,
                                   userResponse: widget.userResponse,
+                                  data: widget.data,
+                                  devicePosition: devicePosition,
                                 )));
+                    await loadDeviceInfo();
                     setState(() {
-                      if (responseRdv == 1) {
+                      if (responseRdv == 1 && mounted) {
                         setState(() {
                           loadingStatus = 0;
                         });
-                        getAppoint(keyConsult);
+
+                        getAppoint(
+                            keyConsult,
+                            devicePosition!.latitude.toString(),
+                            devicePosition!.longitude.toString());
                         print(1);
                       }
                     });
@@ -401,9 +430,11 @@ class _AgendaPageState extends State<AgendaPage>
                     builder: (_) => DoctorListPage(
                           userResponse: widget.userResponse,
                         )));
+            await loadDeviceInfo();
             setState(() {
               if (responseAdresse == 1) {
-                getAppoint(keyConsult);
+                getAppoint(keyConsult, devicePosition!.latitude.toString(),
+                    devicePosition!.longitude.toString());
                 print(1);
               }
             });

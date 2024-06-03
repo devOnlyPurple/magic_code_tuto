@@ -59,31 +59,31 @@ class Rdv {
     callLink = json['call_link'];
     dateCreate = json['date_create'];
     prestataire = json['prestataire'] != null
-        ? new Prestataire.fromJson(json['prestataire'])
+        ? Prestataire.fromJson(json['prestataire'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['key_rendez_vous'] = this.keyRendezVous;
-    data['patient_token'] = this.patientToken;
-    data['prestataire_token'] = this.prestataireToken;
-    data['key_type_consultation'] = this.keyTypeConsultation;
-    data['key_name_consultation'] = this.keyNameConsultation;
-    data['tarif'] = this.tarif;
-    data['montant_paye'] = this.montantPaye;
-    data['localisation_domicile'] = this.localisationDomicile;
-    data['date_rdv'] = this.dateRdv;
-    data['heure_debut'] = this.heureDebut;
-    data['heure_fin'] = this.heureFin;
-    data['motif_rdv'] = this.motifRdv;
-    data['motif_rejet'] = this.motifRejet;
-    data['etat'] = this.etat;
-    data['type_rdv'] = this.typeRdv;
-    data['call_link'] = this.callLink;
-    data['date_create'] = this.dateCreate;
-    if (this.prestataire != null) {
-      data['prestataire'] = this.prestataire!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['key_rendez_vous'] = keyRendezVous;
+    data['patient_token'] = patientToken;
+    data['prestataire_token'] = prestataireToken;
+    data['key_type_consultation'] = keyTypeConsultation;
+    data['key_name_consultation'] = keyNameConsultation;
+    data['tarif'] = tarif;
+    data['montant_paye'] = montantPaye;
+    data['localisation_domicile'] = localisationDomicile;
+    data['date_rdv'] = dateRdv;
+    data['heure_debut'] = heureDebut;
+    data['heure_fin'] = heureFin;
+    data['motif_rdv'] = motifRdv;
+    data['motif_rejet'] = motifRejet;
+    data['etat'] = etat;
+    data['type_rdv'] = typeRdv;
+    data['call_link'] = callLink;
+    data['date_create'] = dateCreate;
+    if (prestataire != null) {
+      data['prestataire'] = prestataire!.toJson();
     }
     return data;
   }

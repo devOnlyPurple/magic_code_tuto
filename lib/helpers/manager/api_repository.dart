@@ -23,6 +23,7 @@ import 'package:kondjigbale/models/uneAdresse_response.dart';
 import 'package:kondjigbale/models/ville_response.dart';
 
 import '../../models/cancel_rdv.dart';
+import '../../models/meet_decrypt_response.dart';
 
 class ApiRepository {
   // login
@@ -350,7 +351,7 @@ class ApiRepository {
     ConseilResponse responseConseil = ConseilResponse();
 
     // Attendre que la future soit résolue
-    datas = await Api.get_default_datas(datas);
+    datas = await Api.get_default_datas2(datas);
     print(datas);
     FormData formData = FormData.fromMap(datas);
 
@@ -714,29 +715,30 @@ class ApiRepository {
       Map<String, String> datas) async {
     Dio dio = await getDio();
     PharmaciesResponse responseMenu = PharmaciesResponse();
-    try {
-      // Attendre que la future soit résolue
-      datas = await Api.get_default_datas(datas);
-      print(datas);
-      FormData formData = FormData.fromMap(datas);
 
-      Response response =
-          await dio.post(LIST_PHARMA_SERVER_URL, data: formData);
-      print(response.data);
+    // Attendre que la future soit résolu
+    print(1);
+    datas = await Api.get_default_datas2(datas);
+    print(2);
+    FormData formData = FormData.fromMap(datas);
 
-      if (response.statusCode == 200) {
-        // Analyser la réponse JSON et créer un objet LoginResponse
-        var data = jsonDecode(response.data);
-        responseMenu = PharmaciesResponse.fromJson(data);
-      } else {
-        responseMenu = PharmaciesResponse(
-          status: response.statusCode.toString(),
-          message: 'Erreur de serveur: ${response.statusCode}',
-        );
-      }
-    } catch (e) {
-      debugPrint("erreu de ville liste =>$e");
+    Response response = await dio.post(LIST_PHARMA_SERVER_URL, data: formData);
+    print(3);
+
+    if (response.statusCode == 200) {
+      // Analyser la réponse JSON et créer un objet LoginResponse
+      var data = jsonDecode(response.data);
+      print(4);
+
+      responseMenu = PharmaciesResponse.fromJson(data);
+      print(5);
+    } else {
+      responseMenu = PharmaciesResponse(
+        status: response.statusCode.toString(),
+        message: 'Erreur de serveur: ${response.statusCode}',
+      );
     }
+
     return responseMenu;
   }
 
@@ -746,7 +748,7 @@ class ApiRepository {
     ActuResponse responseMenu = ActuResponse();
     try {
       // Attendre que la future soit résolue
-      datas = await Api.get_default_datas(datas);
+      datas = await Api.get_default_datas2(datas);
       print(datas);
       FormData formData = FormData.fromMap(datas);
 
@@ -776,7 +778,7 @@ class ApiRepository {
     RdvResponse responseRdv = RdvResponse();
     try {
       // Attendre que la future soit résolue
-      datas = await Api.get_default_datas(datas);
+      datas = await Api.get_default_datas2(datas);
       print(datas);
       FormData formData = FormData.fromMap(datas);
 
@@ -971,6 +973,34 @@ class ApiRepository {
       responseRdv = CancelRdv.fromJson(data);
     } else {
       responseRdv = CancelRdv(
+        status: response.statusCode.toString(),
+        message: 'Erreur de serveur: ${response.statusCode}',
+      );
+    }
+
+    return responseRdv;
+  }
+
+  static Future<MeetDecryptResponse> decryptMeet(
+      Map<String, String> datas) async {
+    Dio dio = await getDio();
+    MeetDecryptResponse responseRdv = MeetDecryptResponse();
+
+    // Attendre que la future soit résolue
+    datas = await Api.get_default_datas(datas);
+    print(datas);
+    FormData formData = FormData.fromMap(datas);
+
+    Response response = await dio.post(JOIN_MEET_SERVER_URL, data: formData);
+
+    print(response.data);
+
+    if (response.statusCode == 200) {
+      // Analyser la réponse JSON et créer un objet LoginResponse
+      var data = jsonDecode(response.data);
+      responseRdv = MeetDecryptResponse.fromJson(data);
+    } else {
+      responseRdv = MeetDecryptResponse(
         status: response.statusCode.toString(),
         message: 'Erreur de serveur: ${response.statusCode}',
       );

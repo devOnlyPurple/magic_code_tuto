@@ -163,37 +163,40 @@ class _PharmacieDetailsState extends State<PharmacieDetails> {
                             SizedBox(
                               width: 10,
                             ),
-                            Expanded(
-                              child: InkWell(
-                                onTap: () {
-                                  _launchURL(widget.unePharmacie!.contact2!);
-                                },
-                                child: Container(
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                      color: Colors.grey.shade200,
-                                      borderRadius: BorderRadius.circular(15)),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      SizedBox(width: 15),
-                                      SvgPicture.asset('assets/icons/appel.svg',
-                                          height: 18),
-                                      Spacer(
-                                        flex: 1,
-                                      ),
-                                      Text(widget.unePharmacie!.contact2!),
-                                      Spacer(
-                                        flex: 1,
-                                      ),
-                                      Icon(Icons.chevron_right_outlined),
-                                      SizedBox(width: 15),
-                                    ],
+                            if (widget.unePharmacie!.contact2!.isNotEmpty)
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {
+                                    _launchURL(widget.unePharmacie!.contact2!);
+                                  },
+                                  child: Container(
+                                    height: 50,
+                                    decoration: BoxDecoration(
+                                        color: Colors.grey.shade200,
+                                        borderRadius:
+                                            BorderRadius.circular(15)),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        SizedBox(width: 15),
+                                        SvgPicture.asset(
+                                            'assets/icons/appel.svg',
+                                            height: 18),
+                                        Spacer(
+                                          flex: 1,
+                                        ),
+                                        Text(widget.unePharmacie!.contact2!),
+                                        Spacer(
+                                          flex: 1,
+                                        ),
+                                        Icon(Icons.chevron_right_outlined),
+                                        SizedBox(width: 15),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
                           ],
                         ),
                         Br20(),
@@ -203,7 +206,7 @@ class _PharmacieDetailsState extends State<PharmacieDetails> {
                                 Uri.parse(widget.unePharmacie!.mapLink!));
                           },
                           child: Container(
-                            height: 35,
+                            height: 45,
                             width: size.width,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),

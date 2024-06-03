@@ -12,10 +12,10 @@ class Travaux {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['titre'] = this.titre;
-    data['lien_publication'] = this.lienPublication;
-    data['annee_publication'] = this.anneePublication;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['titre'] = titre;
+    data['lien_publication'] = lienPublication;
+    data['annee_publication'] = anneePublication;
     return data;
   }
 }

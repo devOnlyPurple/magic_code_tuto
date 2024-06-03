@@ -23,22 +23,22 @@ class Confirm {
     cinetSiteId = json['cinet_site_id'];
     notifyUrl = json['notify_url'];
     transactionId = json['transaction_id'];
-    amount = json['amount'];
+    amount = json['amount'].toString();
     currency = json['currency'];
     channels = json['channels'];
     description = json['description'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['cinet_apikey'] = this.cinetApikey;
-    data['cinet_site_id'] = this.cinetSiteId;
-    data['notify_url'] = this.notifyUrl;
-    data['transaction_id'] = this.transactionId;
-    data['amount'] = this.amount;
-    data['currency'] = this.currency;
-    data['channels'] = this.channels;
-    data['description'] = this.description;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['cinet_apikey'] = cinetApikey;
+    data['cinet_site_id'] = cinetSiteId;
+    data['notify_url'] = notifyUrl;
+    data['transaction_id'] = transactionId;
+    data['amount'] = amount;
+    data['currency'] = currency;
+    data['channels'] = channels;
+    data['description'] = description;
     return data;
   }
 }

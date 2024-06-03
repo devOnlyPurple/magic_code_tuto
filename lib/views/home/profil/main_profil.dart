@@ -32,6 +32,9 @@ import 'package:kondjigbale/views/home/profil/profil_user.dart';
 import 'package:kondjigbale/widget/widget_helpers.dart';
 import 'package:provider/provider.dart';
 
+import '../../../helpers/manager/default_manager.dart';
+import '../../../models/local/default_data.dart';
+
 class ProfilMain extends StatefulWidget {
   const ProfilMain({super.key});
 
@@ -61,6 +64,17 @@ class _ProfilMainState extends State<ProfilMain> {
   String firstdes = '';
   String version = '';
   String contacts = '';
+  DefaultData? _defaultData;
+  void _loadData() {
+    DefaultData? data = DataManager.getDefaultData();
+    setState(() {
+      _defaultData = data;
+    });
+    print('_defaultData!.deviceId');
+    print(_defaultData!.langue);
+    print('_defaultData!.deviceId');
+  }
+
   Future<void> getAbout() async {
     try {
       final String response =
@@ -73,7 +87,7 @@ class _ProfilMainState extends State<ProfilMain> {
         aboutInfo = aboutData;
         logo = data[0].logo!;
       });
-      print(jsonData);
+      // print(jsonData);
     } catch (error) {
       debugPrint('Erreur lors de la recupperation de l\'api => $error');
     }
@@ -152,6 +166,7 @@ class _ProfilMainState extends State<ProfilMain> {
     // TODO: implement initState
     super.initState();
     _loadInformation();
+    _loadData();
     _currentLocale = localization.currentLocale!.languageCode;
 
     _selectlang = _currentLocale;
@@ -541,7 +556,7 @@ class _ProfilMainState extends State<ProfilMain> {
 
   void _setLocal(String value) async {
     localization.translate(value);
-
+    DataManager.updateLanguage(value);
     await storage.write(key: 'locale', value: value);
     setState(() {
       _currentLocale = value;

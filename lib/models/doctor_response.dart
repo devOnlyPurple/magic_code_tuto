@@ -13,17 +13,17 @@ class DoctorResponse {
     if (json['information'] != null) {
       information = <Prestataire>[];
       json['information'].forEach((v) {
-        information!.add(new Prestataire.fromJson(v));
+        information!.add(Prestataire.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
-    if (this.information != null) {
-      data['information'] = this.information!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['message'] = message;
+    if (information != null) {
+      data['information'] = information!.map((v) => v.toJson()).toList();
     }
     return data;
   }

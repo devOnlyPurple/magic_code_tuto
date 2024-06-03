@@ -1,10 +1,7 @@
 // ignore_for_file: prefer_const_constructors, must_be_immutable
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_localization/flutter_localization.dart';
-import 'package:go_router/go_router.dart';
 import 'package:kondjigbale/classe/connect/connect_check.dart';
 import 'package:kondjigbale/classe/localization/locales.dart';
 import 'package:kondjigbale/helpers/constants/api_constant.dart';
@@ -20,9 +17,7 @@ import 'package:kondjigbale/models/creneau.dart';
 import 'package:kondjigbale/models/prestataire.dart';
 import 'package:kondjigbale/models/rdv.dart';
 import 'package:kondjigbale/models/rdv_confirm_response.dart';
-import 'package:kondjigbale/models/rdv_response.dart';
 import 'package:kondjigbale/models/rdv_typeConsulting.dart';
-import 'package:kondjigbale/models/rendevous.dart';
 import 'package:kondjigbale/models/une_adresse.dart';
 import 'package:kondjigbale/models/user.dart';
 import 'package:kondjigbale/views/adresse/new_adresse.dart';
@@ -83,10 +78,12 @@ class _AppointmentPageState extends State<AppointmentPage>
 
       NicheDoctorResponse creneau = await ApiRepository.creneauDoctor(dataMenu);
       if (creneau.status == API_SUCCES_STATUS) {
-        if (this.mounted) {
+        if (mounted) {
           setState(() {
             amount = creneau.information!.amount!;
-            listCreneau = creneau.information!.creneau!;
+            listCreneau = creneau.information!.creneau!
+                .where((creneau) => creneau.horaire != null)
+                .toList();
             controller = TabController(length: listCreneau.length, vsync: this);
             loadingStatus = 1;
             dureConsultation = creneau.information!.dureeConsultation!;
@@ -107,7 +104,7 @@ class _AppointmentPageState extends State<AppointmentPage>
           print(dateSelectNoFormat);
         }
       } else {
-        if (this.mounted) {
+        if (mounted) {
           setState(() {
             loadingStatus = 1;
           });
@@ -494,7 +491,7 @@ class _AppointmentPageState extends State<AppointmentPage>
             ),
           )
         else
-          Container(
+          SizedBox(
               height: MediaQuery.of(context).size.height * 1,
               child: PageView(
                 controller: _pageController,
@@ -620,7 +617,7 @@ class _AppointmentPageState extends State<AppointmentPage>
   }
 
   Widget TabDate() {
-    return Container(
+    return SizedBox(
         height: 50,
         child: TabBar(
           tabAlignment: TabAlignment.start,

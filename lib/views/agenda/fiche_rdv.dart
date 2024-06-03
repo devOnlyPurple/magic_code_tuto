@@ -1,8 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:kondjigbale/helpers/constants/constant.dart';
 import 'package:kondjigbale/models/rdv.dart';
 import 'package:kondjigbale/models/user.dart';
@@ -13,15 +11,25 @@ import '../../helpers/constants/widget_constants.dart';
 import '../../helpers/manager/api_repository.dart';
 import '../../helpers/utils/class_utils.dart';
 import '../../models/cancel_rdv.dart';
+import '../../models/local/default_data.dart';
+import '../../models/local/position_lat_long.dart';
 import '../../models/rdv_confirm_response.dart';
 import '../../widget/uiSnackbar.dart';
 import '../../widget/widget_helpers.dart';
+import 'meet/meet_screen.dart';
 import 'payPage.dart';
 
 class FicheRdv extends StatefulWidget {
-  FicheRdv({super.key, required this.unRendevous, required this.userResponse});
+  FicheRdv(
+      {super.key,
+      required this.unRendevous,
+      required this.userResponse,
+      required this.data,
+      required this.devicePosition});
   Rdv? unRendevous;
   User? userResponse;
+  DefaultData? data;
+  PositionLatLong? devicePosition;
   @override
   State<FicheRdv> createState() => _FicheRdvState();
 }
@@ -32,6 +40,7 @@ class _FicheRdvState extends State<FicheRdv> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    print(widget.userResponse!.token);
     print(widget.unRendevous!.keyRendezVous);
     etat = widget.unRendevous!.etat!;
   }
@@ -101,12 +110,21 @@ class _FicheRdvState extends State<FicheRdv> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          ClassUtils.navigateTo(
+                              context,
+                              MeetScreen(
+                                unRendevous: widget.unRendevous,
+                                userResponse: widget.userResponse,
+                                data: widget.data,
+                                devicePosition: widget.devicePosition,
+                              ));
+                        },
                         child: Container(
-                          height: 45,
+                          height: 40,
                           width: size.width,
                           decoration: BoxDecoration(
-                              color: Ksecondary,
+                              color: Kprimary.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(7.5)),
                           child: Align(
                             alignment: Alignment.center,
@@ -119,13 +137,13 @@ class _FicheRdvState extends State<FicheRdv> {
                                 Icon(
                                   Icons.videocam_outlined,
                                   color: Colors.black,
-                                  size: 15,
+                                  size: 22,
                                 ),
                                 SizedBox(
                                   width: 10,
                                 ),
                                 Text(
-                                  "Debuter la visio",
+                                  "Démmarer la consultation",
                                   style: TextStyle(
                                       fontSize: 18,
                                       color: Colors.black,
@@ -152,7 +170,7 @@ class _FicheRdvState extends State<FicheRdv> {
                           InkWell(
                             onTap: () {
                               CustomChoixDialog(context,
-                                  title: "Déconnexion",
+                                  title: "Annulation",
                                   content:
                                       "Vous voulez vraiment annuler ce rendez-vous?",
                                   acceptText: "Oui",
@@ -184,7 +202,7 @@ class _FicheRdvState extends State<FicheRdv> {
                         InkWell(
                           onTap: () {
                             CustomChoixDialog(context,
-                                title: "Suppresion",
+                                title: "Suppression",
                                 content:
                                     "Vous voulez vraiment supprimer ce rendez-vous?",
                                 acceptText: "Oui",
@@ -283,11 +301,9 @@ class _FicheRdvState extends State<FicheRdv> {
             descInfo(
               Icons.timer,
               'Horaire',
-              widget.unRendevous!.heureDebut!.substring(
-                      0, widget.unRendevous!.heureDebut!.length - 2) +
-                  ' - ' +
-                  widget.unRendevous!.heureFin!
-                      .substring(0, widget.unRendevous!.heureFin!.length - 3),
+              '${widget.unRendevous!.heureDebut!.substring(
+                      0, widget.unRendevous!.heureDebut!.length - 2)} - ${widget.unRendevous!.heureFin!
+                      .substring(0, widget.unRendevous!.heureFin!.length - 3)}',
             ),
             Br5(),
             descInfo(Icons.money_sharp, 'Prix', widget.unRendevous!.tarif!),

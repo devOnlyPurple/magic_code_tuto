@@ -13,10 +13,10 @@ class Formations {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['annee_obtention'] = this.anneeObtention;
-    data['denomination_diplome'] = this.denominationDiplome;
-    data['denomination_ecole'] = this.denominationEcole;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['annee_obtention'] = anneeObtention;
+    data['denomination_diplome'] = denominationDiplome;
+    data['denomination_ecole'] = denominationEcole;
     return data;
   }
 }

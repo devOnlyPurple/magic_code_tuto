@@ -11,16 +11,16 @@ class NicheDoctorResponse {
     status = json['status'];
     message = json['message'];
     information = json['information'] != null
-        ? new Component.fromJson(json['information'])
+        ? Component.fromJson(json['information'])
         : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['status'] = this.status;
-    data['message'] = this.message;
-    if (this.information != null) {
-      data['information'] = this.information!.toJson();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['message'] = message;
+    if (information != null) {
+      data['information'] = information!.toJson();
     }
     return data;
   }
@@ -39,17 +39,17 @@ class Component {
     if (json['creneau'] != null) {
       creneau = <Creneau>[];
       json['creneau'].forEach((v) {
-        creneau!.add(new Creneau.fromJson(v));
+        creneau!.add(Creneau.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['duree_consultation'] = this.dureeConsultation;
-    data['amount'] = this.amount;
-    if (this.creneau != null) {
-      data['creneau'] = this.creneau!.map((v) => v.toJson()).toList();
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['duree_consultation'] = dureeConsultation;
+    data['amount'] = amount;
+    if (creneau != null) {
+      data['creneau'] = creneau!.map((v) => v.toJson()).toList();
     }
     return data;
   }

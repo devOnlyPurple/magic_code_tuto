@@ -15,10 +15,10 @@ class TypeConsultations {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['key_type_consultation'] = this.keyTypeConsultation;
-    data['denomination_type_consultation'] = this.denominationTypeConsultation;
-    data['tarif'] = this.tarif;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['key_type_consultation'] = keyTypeConsultation;
+    data['denomination_type_consultation'] = denominationTypeConsultation;
+    data['tarif'] = tarif;
     return data;
   }
 }

@@ -2,7 +2,6 @@ import 'package:kondjigbale/models/presta_association.dart';
 import 'package:kondjigbale/models/presta_experience.dart';
 import 'package:kondjigbale/models/presta_formations.dart';
 import 'package:kondjigbale/models/presta_travaux.dart';
-import 'package:kondjigbale/models/rdv_response.dart';
 import 'package:kondjigbale/models/rdv_typeConsulting.dart';
 
 class Prestataire {
@@ -82,73 +81,73 @@ class Prestataire {
     if (json['type_consultations'] != null) {
       typeConsultations = <TypeConsultations>[];
       json['type_consultations'].forEach((v) {
-        typeConsultations!.add(new TypeConsultations.fromJson(v));
+        typeConsultations!.add(TypeConsultations.fromJson(v));
       });
     }
     expertises = json['expertises'];
     if (json['associations'] != null) {
       associations = <Associations>[];
       json['associations'].forEach((v) {
-        associations!.add(new Associations.fromJson(v));
+        associations!.add(Associations.fromJson(v));
       });
     }
     if (json['formations'] != null) {
       formations = <Formations>[];
       json['formations'].forEach((v) {
-        formations!.add(new Formations.fromJson(v));
+        formations!.add(Formations.fromJson(v));
       });
     }
     if (json['experiences'] != null) {
       experiences = <Experiences>[];
       json['experiences'].forEach((v) {
-        experiences!.add(new Experiences.fromJson(v));
+        experiences!.add(Experiences.fromJson(v));
       });
     }
     if (json['travaux'] != null) {
       travaux = <Travaux>[];
       json['travaux'].forEach((v) {
-        travaux!.add(new Travaux.fromJson(v));
+        travaux!.add(Travaux.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['token'] = this.token;
-    data['username'] = this.username;
-    data['nom'] = this.nom;
-    data['prenoms'] = this.prenoms;
-    data['num_identif_unique'] = this.numIdentifUnique;
-    data['sexe_key'] = this.sexeKey;
-    data['sexe_name'] = this.sexeName;
-    data['photo'] = this.photo;
-    data['email'] = this.email;
-    data['localisation'] = this.localisation;
-    data['adresse'] = this.adresse;
-    data['ville_key'] = this.villeKey;
-    data['ville_nom'] = this.villeNom;
-    data['numero_ordre'] = this.numeroOrdre;
-    data['key_specialite'] = this.keySpecialite;
-    data['denomination_specialite'] = this.denominationSpecialite;
-    data['key_langue'] = this.keyLangue;
-    data['denomination_langue'] = this.denominationLangue;
-    if (this.typeConsultations != null) {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['token'] = token;
+    data['username'] = username;
+    data['nom'] = nom;
+    data['prenoms'] = prenoms;
+    data['num_identif_unique'] = numIdentifUnique;
+    data['sexe_key'] = sexeKey;
+    data['sexe_name'] = sexeName;
+    data['photo'] = photo;
+    data['email'] = email;
+    data['localisation'] = localisation;
+    data['adresse'] = adresse;
+    data['ville_key'] = villeKey;
+    data['ville_nom'] = villeNom;
+    data['numero_ordre'] = numeroOrdre;
+    data['key_specialite'] = keySpecialite;
+    data['denomination_specialite'] = denominationSpecialite;
+    data['key_langue'] = keyLangue;
+    data['denomination_langue'] = denominationLangue;
+    if (typeConsultations != null) {
       data['type_consultations'] =
-          this.typeConsultations!.map((v) => v.toJson()).toList();
+          typeConsultations!.map((v) => v.toJson()).toList();
     }
-    data['expertises'] = this.expertises;
-    if (this.associations != null) {
-      data['associations'] = this.associations!.map((v) => v.toJson()).toList();
+    data['expertises'] = expertises;
+    if (associations != null) {
+      data['associations'] = associations!.map((v) => v.toJson()).toList();
     }
-    if (this.formations != null) {
-      data['formations'] = this.formations!.map((v) => v.toJson()).toList();
+    if (formations != null) {
+      data['formations'] = formations!.map((v) => v.toJson()).toList();
     }
-    if (this.experiences != null) {
-      data['experiences'] = this.experiences!.map((v) => v.toJson()).toList();
+    if (experiences != null) {
+      data['experiences'] = experiences!.map((v) => v.toJson()).toList();
     }
-    if (this.travaux != null) {
-      data['travaux'] = this.travaux!.map((v) => v.toJson()).toList();
+    if (travaux != null) {
+      data['travaux'] = travaux!.map((v) => v.toJson()).toList();
     }
     return data;
   }

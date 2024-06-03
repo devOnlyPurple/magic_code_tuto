@@ -1,9 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:kondjigbale/classe/connect/connect_check.dart';
 import 'package:kondjigbale/helpers/constants/api_constant.dart';
@@ -22,11 +20,21 @@ import 'package:kondjigbale/widget/uiSnackbar.dart';
 import 'package:kondjigbale/widget/widget_helpers.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../models/local/default_data.dart';
+import '../../../models/local/position_lat_long.dart';
+import '../../agenda/doctor_list.dart';
+
 class ConseilPage extends StatefulWidget {
   ConseilPage(
-      {super.key, required this.categorieconseil, required this.userResponse});
+      {super.key,
+      required this.categorieconseil,
+      required this.userResponse,
+      required this.data,
+      required this.devicePosition});
   List<CategorieConseil>? categorieconseil;
   User? userResponse;
+  DefaultData? data;
+  PositionLatLong? devicePosition;
   @override
   State<ConseilPage> createState() => _ConseilPageState();
 }
@@ -40,13 +48,19 @@ class _ConseilPageState extends State<ConseilPage> {
   List<Conseil> lesConseils = [];
   List<Conseil> lesSaveConseil = [];
   String keyblog = '';
-  Future<void> getConseil(String keyBlog) async {
+  Future<void> getConseil(
+      String keyBlog, String latitude, String longitude) async {
     final Map<String, String> dataconseil = {
       'u_identifiant': widget.userResponse!.token!,
       'e_identifiant': '',
       'cat_identifiant': keyBlog,
       'type_liste': '0',
       'key_conseil': '',
+      "lang": widget.data!.langue!,
+      "latMember": latitude,
+      "longMember": longitude,
+      "device_id": widget.data!.deviceId!,
+      "device_name": widget.data!.deviceName!,
     };
 
     ConseilResponse listeConseil = await ApiRepository.listConseil(dataconseil);
@@ -55,7 +69,7 @@ class _ConseilPageState extends State<ConseilPage> {
       if (mounted) {
         setState(() {
           lesConseils = listeConseil.information!;
-          loadingStatus = 1;
+
           for (Conseil conseil in lesConseils) {
             if (conseil.isLike == 1) {
               conseil.isLiking = true;
@@ -64,6 +78,7 @@ class _ConseilPageState extends State<ConseilPage> {
               conseil.isSaving = true;
             }
           }
+          loadingStatus = 1;
         });
       }
     } else {
@@ -80,22 +95,24 @@ class _ConseilPageState extends State<ConseilPage> {
 
   final ConnectivityChecker _connectivity = ConnectivityChecker();
   Future<void> launchAllfunction() async {
-    bool isConnect = await _connectivity.checkInternetConnectivity();
-    if (isConnect) {
-      getConseil(keyblog);
-      getSaveConseil(keyblog);
-    } else {
-      print("no connexion");
-      CustomErrorDialog(
-        context,
-        content: "Vérifiez votre connexion internet",
-        buttonText: "Réessayez",
-        onPressed: () {
-          launchAllfunction();
-          Navigator.of(context).pop();
-        },
-      );
-    }
+    // bool isConnect = await _connectivity.checkInternetConnectivity();
+    // if (isConnect) {
+    getConseil(keyblog, widget.devicePosition!.latitude.toString(),
+        widget.devicePosition!.longitude.toString());
+    getSaveConseil(keyblog, widget.devicePosition!.latitude.toString(),
+        widget.devicePosition!.longitude.toString());
+    // } else {
+    //   print("no connexion");
+    //   CustomErrorDialog(
+    //     context,
+    //     content: "Vérifiez votre connexion internet",
+    //     buttonText: "Réessayez",
+    //     onPressed: () {
+    //       launchAllfunction();
+    //       Navigator.of(context).pop();
+    //     },
+    //   );
+    // }
   }
 
   @override
@@ -125,7 +142,14 @@ class _ConseilPageState extends State<ConseilPage> {
         ),
         actions: [
           InkWell(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => DoctorListPage(
+                            userResponse: widget.userResponse,
+                          )));
+            },
             child: const Icon(Icons.calendar_month),
           ),
           const SizedBox(
@@ -143,7 +167,7 @@ class _ConseilPageState extends State<ConseilPage> {
               ClassUtils.navigateTo(
                   context,
                   SaveConseil(
-                    lesSaveConseil:lesSaveConseil,
+                    lesSaveConseil: lesSaveConseil,
                     userResponse: widget.userResponse,
                   ));
             },
@@ -209,11 +233,15 @@ class _ConseilPageState extends State<ConseilPage> {
                       _selectIndex = index;
                       keyblog = uneCategorie.keyCategorie!;
                     }
-                    getConseil(keyblog);
+                    getConseil(
+                        keyblog,
+                        widget.devicePosition!.latitude.toString(),
+                        widget.devicePosition!.longitude.toString());
                   });
                 },
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 5.0,top: 5.0,bottom: 5.0),
+                  padding:
+                      const EdgeInsets.only(left: 5.0, top: 5.0, bottom: 5.0),
                   child: Container(
                     width: size.width / 3.8,
                     decoration: BoxDecoration(
@@ -241,7 +269,9 @@ class _ConseilPageState extends State<ConseilPage> {
                         child: Text(
                           uneCategorie.nom!,
                           style: const TextStyle(
-                              color: kWhite, fontWeight: FontWeight.w600,fontSize: 11),
+                              color: kWhite,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11),
                         ),
                       ),
                     ),
@@ -258,232 +288,229 @@ class _ConseilPageState extends State<ConseilPage> {
       width: size.width,
       child: Column(
         children: [
-          if (categorieConseil.isEmpty)
-            EmptyPage(title: 'Aucun.s conseil.s disponible')
-          else
-            ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: categorieConseil.length,
-                itemBuilder: (context, i) {
-                  Conseil uneCategorieConseil = categorieConseil[i];
-                  likeQuantity = uneCategorieConseil.allLike!;
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: InkWell(
-                      onTap: () {
-                        ClassUtils.navigateTo(
-                            context,
-                            ConseilDetails(
-                              unConseil: uneCategorieConseil,
-                              userResponse: widget.userResponse,
-                              onLike: (String keyconseil) {
-                                _likeDislikeConseil(keyconseil);
-                              },
-                              onSave: (String keyconseil) {
-                                _saveConseil(keyconseil);
-                              },
-                              onShare: (String keyconseil) {
-                                _shareConseil(keyconseil);
-                              },
-                            ));
-                      },
-                      child: Container(
-                        height: 100,
-                        width: size.width,
-                        decoration: BoxDecoration(
-                          // color: Colors.grey.shade100,
-                          color: Colors.grey.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Row(
-                          children: [
-                            const SizedBox(width: 5),
-                            Container(
-                              margin: const EdgeInsets.all(8.0),
-                              width: size.width / 6.5,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  image: DecorationImage(
-                                      image: CachedNetworkImageProvider(
-                                          uneCategorieConseil.coverImage!),
-                                      fit: BoxFit.fill)),
-                            ),
-                            const SizedBox(width: 5),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Row(
-                                    children: [
-                                      SizedBox(
-                                        child: uneCategorieConseil.typeMedia == 1
-                                            ? Icon(
-                                                Icons.image_outlined,
-                                                color: Colors.black,
-                                              )
-                                            : uneCategorieConseil.typeMedia == 2
-                                                ? Icon(
-                                                    Icons.videocam_outlined,
-                                                    color: Colors.black,
-                                                  )
-                                                : Icon(
-                                                    Icons
-                                                        .spatial_audio_off_outlined,
-                                                    color: Colors.black,
-                                                  ),
-                                      ),
-                                      const SizedBox(width: 3),
-                                      Expanded(
-                                        child: Text(
-                                          uneCategorieConseil.titre!,
-                                          softWrap: true,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.w500),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Br5(),
-                                  Row(
-                                    children: [
-                                      SvgPicture.asset(
-                                        'assets/icons/user.svg',
-                                        height: 15,
-                                        color: kBlack,
-                                      ),
-                                      const SizedBox(width: 3),
-                                      Text(
-                                        uneCategorieConseil.expert!.name!,
+          ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: categorieConseil.length,
+              itemBuilder: (context, i) {
+                Conseil uneCategorieConseil = categorieConseil[i];
+                likeQuantity = uneCategorieConseil.allLike!;
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: InkWell(
+                    onTap: () {
+                      ClassUtils.navigateTo(
+                          context,
+                          ConseilDetails(
+                            unConseil: uneCategorieConseil,
+                            userResponse: widget.userResponse,
+                            onLike: (String keyconseil) {
+                              _likeDislikeConseil(keyconseil);
+                            },
+                            onSave: (String keyconseil) {
+                              _saveConseil(keyconseil);
+                            },
+                            onShare: (String keyconseil) {
+                              _shareConseil(keyconseil);
+                            },
+                          ));
+                    },
+                    child: Container(
+                      height: 100,
+                      width: size.width,
+                      decoration: BoxDecoration(
+                        // color: Colors.grey.shade100,
+                        color: Colors.grey.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 5),
+                          Container(
+                            margin: const EdgeInsets.all(8.0),
+                            width: size.width / 6.5,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                image: DecorationImage(
+                                    image: CachedNetworkImageProvider(
+                                        uneCategorieConseil.coverImage!),
+                                    fit: BoxFit.fill)),
+                          ),
+                          const SizedBox(width: 5),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Row(
+                                  children: [
+                                    SizedBox(
+                                      child: uneCategorieConseil.typeMedia == 1
+                                          ? Icon(
+                                              Icons.image_outlined,
+                                              color: Colors.black,
+                                            )
+                                          : uneCategorieConseil.typeMedia == 2
+                                              ? Icon(
+                                                  Icons.videocam_outlined,
+                                                  color: Colors.black,
+                                                )
+                                              : Icon(
+                                                  Icons
+                                                      .spatial_audio_off_outlined,
+                                                  color: Colors.black,
+                                                ),
+                                    ),
+                                    const SizedBox(width: 3),
+                                    Expanded(
+                                      child: Text(
+                                        uneCategorieConseil.titre!,
                                         softWrap: true,
-                                        style: TextStyle(color: kBlack),
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w500),
                                       ),
-                                    ],
-                                  ),
-                                  Br10(),
-                                  Row(
-                                    children: [
-                                      InkWell(
-                                        onTap: () {
-                                          setState(() {
-                                            if (uneCategorieConseil.isLiking ==
-                                                true) {
-                                              uneCategorieConseil
-                                                  .allLike = (uneCategorieConseil
-                                                          .allLike ??
-                                                      0) -
-                                                  1; // Incrémenter le nombre de likes
-                                              uneCategorieConseil.isLiking =
-                                                  false; // Mettre à jour l'état de liking
-                                            } else {
-                                              uneCategorieConseil
-                                                  .allLike = (uneCategorieConseil
-                                                          .allLike ??
-                                                      0) +
-                                                  1; // Décrémenter le nombre de likes
-                                              uneCategorieConseil.isLiking =
-                                                  true; // Mettre à jour l'état de liking
-                                            }
-                                          });
-                                          _likeDislikeConseil(
-                                              uneCategorieConseil.keyConseil!);
-                                        },
-                                        child: SizedBox(
-                                          child: Row(
-                                            children: [
-                                              Icon(
-                                                uneCategorieConseil.isLiking ==
-                                                        true
-                                                    ? Icons.favorite
-                                                    : Icons
-                                                        .favorite_outline_outlined,
-                                                size: 18,
-                                                color: uneCategorieConseil
-                                                            .isLiking ==
-                                                        true
-                                                    ? kRed
-                                                    : Colors.black,
-                                              ),
-                                              SizedBox(
-                                                width: 2,
-                                              ),
-                                              Text((uneCategorieConseil.allLike)
-                                                  .toString())
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: 20),
-                                      InkWell(
-                                        onTap: () async {
-                                          try {
-                                            // Appel de la méthode Share.share pour partager le lien
-                                            await Share.share(
-                                                uneCategorieConseil.shareLink!);
-                                            _shareConseil(
-                                                uneCategorieConseil.keyConseil!);
-                                            // Si le partage est réussi, cela signifie que l'utilisateur a appuyé sur le bouton de partage
-                                            print(
-                                                "L'utilisateur a partagé l'actualité");
-                                          } catch (e) {
-                                            // En cas d'erreur lors du partage
-                                            print("Erreur lors du partage : $e");
+                                    ),
+                                  ],
+                                ),
+                                Br5(),
+                                Row(
+                                  children: [
+                                    SvgPicture.asset(
+                                      'assets/icons/user.svg',
+                                      height: 15,
+                                      color: kBlack,
+                                    ),
+                                    const SizedBox(width: 3),
+                                    Text(
+                                      uneCategorieConseil.expert!.name!,
+                                      softWrap: true,
+                                      style: TextStyle(color: kBlack),
+                                    ),
+                                  ],
+                                ),
+                                Br10(),
+                                Row(
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          if (uneCategorieConseil.isLiking ==
+                                              true) {
+                                            uneCategorieConseil
+                                                .allLike = (uneCategorieConseil
+                                                        .allLike ??
+                                                    0) -
+                                                1; // Incrémenter le nombre de likes
+                                            uneCategorieConseil.isLiking =
+                                                false; // Mettre à jour l'état de liking
+                                          } else {
+                                            uneCategorieConseil
+                                                .allLike = (uneCategorieConseil
+                                                        .allLike ??
+                                                    0) +
+                                                1; // Décrémenter le nombre de likes
+                                            uneCategorieConseil.isLiking =
+                                                true; // Mettre à jour l'état de liking
                                           }
-                                        },
-                                        child: SizedBox(
-                                          child: Row(
-                                            children: [
-                                              Icon(
-                                                Icons.share_outlined,
-                                                size: 18,
-                                              ),
-                                              SizedBox(
-                                                width: 2,
-                                              ),
-                                              Text(uneCategorieConseil.shares
-                                                  .toString())
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: 20),
-                                      InkWell(
-                                        onTap: () {
-                                          setState(() {
-                                            if (uneCategorieConseil.isSaving ==
-                                                true) {
-                                              uneCategorieConseil.isSaving =
-                                                  false;
-                                            } else {
-                                              uneCategorieConseil.isSaving = true;
-                                            }
-                                          });
-                                          _saveConseil(
-                                              uneCategorieConseil.keyConseil!);
-                                        },
-                                        child: Icon(
-                                          uneCategorieConseil.isSaving == true
-                                              ? Icons.bookmark
-                                              : Icons.bookmark_border_outlined,
-                                          size: 18,
-                                          color:
-                                              uneCategorieConseil.isSaving == true
-                                                  ? Kprimary
+                                        });
+                                        _likeDislikeConseil(
+                                            uneCategorieConseil.keyConseil!);
+                                      },
+                                      child: SizedBox(
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              uneCategorieConseil.isLiking ==
+                                                      true
+                                                  ? Icons.favorite
+                                                  : Icons
+                                                      .favorite_outline_outlined,
+                                              size: 18,
+                                              color: uneCategorieConseil
+                                                          .isLiking ==
+                                                      true
+                                                  ? kRed
                                                   : Colors.black,
+                                            ),
+                                            SizedBox(
+                                              width: 2,
+                                            ),
+                                            Text((uneCategorieConseil.allLike)
+                                                .toString())
+                                          ],
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                                    ),
+                                    SizedBox(width: 20),
+                                    InkWell(
+                                      onTap: () async {
+                                        try {
+                                          // Appel de la méthode Share.share pour partager le lien
+                                          await Share.share(
+                                              uneCategorieConseil.shareLink!);
+                                          _shareConseil(
+                                              uneCategorieConseil.keyConseil!);
+                                          // Si le partage est réussi, cela signifie que l'utilisateur a appuyé sur le bouton de partage
+                                          print(
+                                              "L'utilisateur a partagé l'actualité");
+                                        } catch (e) {
+                                          // En cas d'erreur lors du partage
+                                          print("Erreur lors du partage : $e");
+                                        }
+                                      },
+                                      child: SizedBox(
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.share_outlined,
+                                              size: 18,
+                                            ),
+                                            SizedBox(
+                                              width: 2,
+                                            ),
+                                            Text(uneCategorieConseil.shares
+                                                .toString())
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(width: 20),
+                                    InkWell(
+                                      onTap: () {
+                                        setState(() {
+                                          if (uneCategorieConseil.isSaving ==
+                                              true) {
+                                            uneCategorieConseil.isSaving =
+                                                false;
+                                          } else {
+                                            uneCategorieConseil.isSaving = true;
+                                          }
+                                        });
+                                        _saveConseil(
+                                            uneCategorieConseil.keyConseil!);
+                                      },
+                                      child: Icon(
+                                        uneCategorieConseil.isSaving == true
+                                            ? Icons.bookmark
+                                            : Icons.bookmark_border_outlined,
+                                        size: 18,
+                                        color:
+                                            uneCategorieConseil.isSaving == true
+                                                ? Kprimary
+                                                : Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                  );
-                }),
+                  ),
+                );
+              }),
         ],
       ),
     );
@@ -502,7 +529,8 @@ class _ConseilPageState extends State<ConseilPage> {
 
       print(listeConseil.status);
       if (listeConseil.status == API_SUCCES_STATUS) {
-        getConseil(keyblog);
+        getConseil(keyblog, widget.devicePosition!.latitude.toString(),
+            widget.devicePosition!.longitude.toString());
       } else {
         var message = listeConseil.message.toString();
         UiSnackbar.showSnackbar(context, message, false);
@@ -533,7 +561,8 @@ class _ConseilPageState extends State<ConseilPage> {
 
       print(listeConseil.status);
       if (listeConseil.status == API_SUCCES_STATUS) {
-        getConseil(keyblog);
+        getConseil(keyblog, widget.devicePosition!.latitude.toString(),
+            widget.devicePosition!.longitude.toString());
       } else {
         var message = listeConseil.message.toString();
         UiSnackbar.showSnackbar(context, message, false);
@@ -564,7 +593,8 @@ class _ConseilPageState extends State<ConseilPage> {
 
       print(listeConseil.status);
       if (listeConseil.status == API_SUCCES_STATUS) {
-        getConseil(keyblog);
+        getConseil(keyblog, widget.devicePosition!.latitude.toString(),
+            widget.devicePosition!.longitude.toString());
       } else {
         var message = listeConseil.message.toString();
         UiSnackbar.showSnackbar(context, message, false);
@@ -582,19 +612,26 @@ class _ConseilPageState extends State<ConseilPage> {
     }
   }
 
-  Future<void> getSaveConseil(String keyBlog) async {
+  Future<void> getSaveConseil(
+      String keyBlog, String latitude, String longitude) async {
     final Map<String, String> dataconseil = {
       'u_identifiant': widget.userResponse!.token!,
       'e_identifiant': '',
       'cat_identifiant': keyBlog,
       'type_liste': '1',
       'key_conseil': '',
+      "lang": widget.data!.langue!,
+      "latMember": latitude,
+      "longMember": longitude,
+      "device_id": widget.data!.deviceId!,
+      "device_name": widget.data!.deviceName!,
     };
 
     ConseilResponse listeConseil = await ApiRepository.listConseil(dataconseil);
 
     if (listeConseil.status == API_SUCCES_STATUS) {
       if (mounted) {
+        print('debut.....');
         setState(() {
           lesSaveConseil = listeConseil.information!;
           loadingStatus = 1;

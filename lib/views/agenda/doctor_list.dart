@@ -3,14 +3,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_localization/flutter_localization.dart';
 import 'package:kondjigbale/classe/connect/connect_check.dart';
-import 'package:kondjigbale/classe/localization/locales.dart';
 import 'package:kondjigbale/helpers/constants/api_constant.dart';
 import 'package:kondjigbale/helpers/constants/constant.dart';
 import 'package:kondjigbale/helpers/constants/widget_constants.dart';
 import 'package:kondjigbale/helpers/manager/api_repository.dart';
-import 'package:kondjigbale/helpers/utils/class_utils.dart';
 import 'package:kondjigbale/models/doctor_response.dart';
 import 'package:kondjigbale/models/langue.dart';
 import 'package:kondjigbale/models/prestataire.dart';
@@ -21,7 +18,6 @@ import 'package:kondjigbale/models/ville.dart';
 import 'package:kondjigbale/models/ville_response.dart';
 import 'package:kondjigbale/providers/listes_provider.dart';
 import 'package:kondjigbale/views/agenda/detail_medecin.dart';
-import 'package:kondjigbale/views/agenda/filter_modal.dart';
 import 'package:kondjigbale/views/agenda/prise_rdv.dart';
 import 'package:kondjigbale/widget/empty_page.dart';
 import 'package:kondjigbale/widget/widget_helpers.dart';
@@ -52,7 +48,7 @@ class _DoctorListPageState extends State<DoctorListPage> {
 
   int ischoiceDoctor = 0; // 1=
   List<Ville> listville = [];
-  /**Doctor list get api  Start*/
+  /// Doctor list get api  Start
   Future<void> getPrestaList(String speKey, String consulKey, String symKey,
       String villeKey, String langKey, String docName) async {
     print(consulKey);
@@ -105,7 +101,7 @@ class _DoctorListPageState extends State<DoctorListPage> {
       );
     }
   }
-  /**Doctor list get api End */
+  /// Doctor list get api End
 
   Future<void> getVilleList() async {
     final Map<String, String> dataMenu = {

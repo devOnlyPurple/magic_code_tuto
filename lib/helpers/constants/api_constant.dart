@@ -63,3 +63,4 @@ const String ADD_RDV_SERVER_URL = "$SERVER_URL/appointments/add_rdv";
 const String CONFIRM_RDV_SERVER_URL = "$SERVER_URL/appointments/confirm_rdv";
 const String CANCEL_RDV_SERVER_URL = "$SERVER_URL/appointments/cancel_rdv";
 const String DELETE_RDV_SERVER_URL = "$SERVER_URL/appointments/delete_rdv";
+const String JOIN_MEET_SERVER_URL = "$SERVER_URL/appointments/call_online_rdv";

@@ -1,17 +1,17 @@
-import 'package:kondjigbale/models/confirm.dart';
+import 'meet.dart';
 
-class Confirm_rdv {
+class MeetDecryptResponse {
   String? status;
   String? message;
-  Confirm? information;
+  Meet? information;
 
-  Confirm_rdv({this.status, this.message, this.information});
+  MeetDecryptResponse({this.status, this.message, this.information});
 
-  Confirm_rdv.fromJson(Map<String, dynamic> json) {
+  MeetDecryptResponse.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     message = json['message'];
     information = json['information'] != null
-        ? Confirm.fromJson(json['information'])
+        ? Meet.fromJson(json['information'])
         : null;
   }
 

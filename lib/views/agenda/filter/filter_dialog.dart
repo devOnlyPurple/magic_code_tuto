@@ -111,7 +111,7 @@ class _FilterDialogState extends State<FilterDialog> {
         'nom': ville.nom,
       };
     }).toList();
-    return Container(
+    return SizedBox(
       width: size.width,
       child: Column(
         children: [
@@ -182,7 +182,7 @@ class _FilterDialogState extends State<FilterDialog> {
         'nom': typeConsult.nom,
       };
     }).toList();
-    return Container(
+    return SizedBox(
       width: size.width,
       child: Column(
         children: [
@@ -253,7 +253,7 @@ class _FilterDialogState extends State<FilterDialog> {
         'nom': langues.nom,
       };
     }).toList();
-    return Container(
+    return SizedBox(
       width: size.width,
       child: Column(
         children: [
@@ -325,7 +325,7 @@ class _FilterDialogState extends State<FilterDialog> {
         'nom': special.nom,
       };
     }).toList();
-    return Container(
+    return SizedBox(
       width: size.width,
       child: Column(
         children: [

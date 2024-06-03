@@ -7,7 +7,7 @@ class ConnectivityChecker {
     try {
       final response = await _client
           .get(Uri.parse("https://www.google.com"))
-          .timeout(Duration(seconds: 5));
+          .timeout(const Duration(seconds: 5));
       return response.statusCode == 200;
     } catch (e) {
       return false;

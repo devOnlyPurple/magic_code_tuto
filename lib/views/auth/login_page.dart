@@ -1,3 +1,4 @@
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_loading/card_loading.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,11 @@ import 'package:kondjigbale/widget/widget_helpers.dart';
 import 'package:provider/provider.dart';
 import 'package:validatorless/validatorless.dart';
 import 'package:get/get.dart';
+
+import '../../classe/device_infos.dart';
+import '../../helpers/manager/default_manager.dart';
+import '../../helpers/utils/device_all_info.dart';
+import '../../models/local/default_data.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({super.key, required this.apiPays, required this.listSexe});
@@ -63,7 +69,15 @@ class _LoginPageState extends State<LoginPage> {
     // TODO: implement initState
     super.initState();
     _currentLocale = localization.currentLocale!.languageCode;
+    loadDeviceInfo();
     // print(widget.listSexe);
+  }
+
+  DeviceAllInfo? deviceAllInfo;
+  loadDeviceInfo() async {
+    deviceAllInfo = await DeviceAllInfoService().getDeviceLocationAndInfo();
+
+    print(deviceAllInfo!.deviceId);
   }
 
   @override
@@ -234,12 +248,14 @@ class _LoginPageState extends State<LoginPage> {
 
                   // controller: controller,
                   // obscureText: obscuretext,
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                      fontSize: 17, fontWeight: FontWeight.w500),
                   decoration: InputDecoration(
                     counterText: '',
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
-                      borderSide: const BorderSide(color: kformFieldBackgroundColor),
+                      borderSide:
+                          const BorderSide(color: kformFieldBackgroundColor),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10.0),
@@ -436,6 +452,14 @@ class _LoginPageState extends State<LoginPage> {
         User userResponse = responselogin.information!;
         UsersProvider userprovider = UsersProvider();
         userprovider.userInfo = userResponse;
+
+        DefaultData data = DefaultData(
+          langue: _currentLocale,
+          registrationId: '',
+          deviceId: deviceAllInfo!.deviceId,
+          deviceName: deviceAllInfo!.deviceName,
+        );
+        DataManager.saveDefaultData(data);
         await storage.write(key: 'connectionStatus', value: 'connected');
         _classUtils.createLoginSession(userResponse).then((value) {
           GoRouter.of(context).go('/home');

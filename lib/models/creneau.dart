@@ -18,13 +18,13 @@ class Creneau {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['key'] = this.key;
-    data['date'] = this.date;
-    data['jour_name'] = this.jourName;
-    data['horaire'] = this.horaire;
-    if (this.reserved != null) {
-      data['reserved'] = List<String>.from(this.reserved!);
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['key'] = key;
+    data['date'] = date;
+    data['jour_name'] = jourName;
+    data['horaire'] = horaire;
+    if (reserved != null) {
+      data['reserved'] = List<String>.from(reserved!);
     }
     return data;
   }

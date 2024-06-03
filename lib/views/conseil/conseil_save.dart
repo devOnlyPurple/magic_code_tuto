@@ -12,11 +12,33 @@ class SaveConseil extends StatefulWidget {
       {super.key, required this.lesSaveConseil, required this.userResponse});
   List<Conseil>? lesSaveConseil;
   User? userResponse;
+
   @override
   State<SaveConseil> createState() => _SaveConseilState();
 }
 
 class _SaveConseilState extends State<SaveConseil> {
+  List<Conseil> saveConseils = [];
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _loadData();
+  }
+
+  _loadData() async {
+    saveConseils = widget.lesSaveConseil!;
+    for (Conseil conseil in saveConseils) {
+      if (conseil.isLike == 1) {
+        conseil.isLiking = true;
+      }
+      if (conseil.isSave == 1) {
+        conseil.isSaving = true;
+      }
+      print(conseil.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
